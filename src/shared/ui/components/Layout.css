@@ -1,6 +1,11 @@
 .layout-container {
   display: flex;
   min-height: 100vh;
+  --sidebar-width: 250px;
+}
+
+.layout-container.collapsed {
+  --sidebar-width: 80px;
 }
 
 .layout-main {
@@ -9,4 +14,5 @@
   padding: 2.5rem;
   background-color: var(--color-bg);
   min-height: 100vh;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
