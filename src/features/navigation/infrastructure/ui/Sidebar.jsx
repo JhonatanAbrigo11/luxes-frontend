@@ -3,9 +3,18 @@ import { Link, useLocation } from 'react-router-dom';
 import './Sidebar.css';
 
 export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
-  const [isConfigOpen, setIsConfigOpen] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
+
+  const [isConfigOpen, setIsConfigOpen] = useState(currentPath.startsWith('/usuarios'));
+  const [isAsistenciasOpen, setIsAsistenciasOpen] = useState(currentPath.startsWith('/asistencias'));
+  const [isNominaOpen, setIsNominaOpen] = useState(currentPath.startsWith('/nomina'));
+
+  React.useEffect(() => {
+    if (currentPath.startsWith('/nomina')) setIsNominaOpen(true);
+    if (currentPath.startsWith('/asistencias')) setIsAsistenciasOpen(true);
+    if (currentPath.startsWith('/usuarios')) setIsConfigOpen(true);
+  }, [currentPath]);
 
   return (
     <aside 
@@ -47,19 +56,63 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
         <div className="sidebar-category">
           <span className="sidebar-category-title">MÓDULOS</span>
           <ul>
+
+
             <li className={currentPath.startsWith('/nomina') ? 'active' : ''}>
-              <Link to="/nomina">
+              <button
+                onClick={() => setIsNominaOpen(prev => !prev)}
+                style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 1rem', color: 'inherit', textAlign: 'left' }}
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
                   <line x1="12" y1="1" x2="12" y2="23"></line>
                   <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
                 <span className="sidebar-link-text">Nómina</span>
                 {!isCollapsed && (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon"
+                    style={{ transform: isNominaOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                   </svg>
                 )}
-              </Link>
+              </button>
+
+              {/* Sub-links de Nómina */}
+              {isNominaOpen && !isCollapsed && (
+                <ul style={{ paddingLeft: '2.5rem', paddingTop: '0.25rem', paddingBottom: '0.25rem', listStyle: 'none', margin: 0 }}>
+                  <li style={{ marginBottom: '0.15rem' }}>
+                    <Link to="/nomina/empleados" style={{ display: 'block', padding: '0.4rem 0.75rem', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, color: currentPath.startsWith('/nomina/empleados') ? '#02188E' : '#6b7280', textDecoration: 'none' }}>
+                      Empleados
+                    </Link>
+                  </li>
+                  <li style={{ marginBottom: '0.15rem' }}>
+                    <Link to="/nomina/credenciales" style={{ display: 'block', padding: '0.4rem 0.75rem', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, color: currentPath === '/nomina/credenciales' ? '#02188E' : '#6b7280', textDecoration: 'none' }}>
+                      Credenciales
+                    </Link>
+                  </li>
+                  <li style={{ marginBottom: '0.15rem' }}>
+                    <Link to="/nomina/registro-asistencia" style={{ display: 'block', padding: '0.4rem 0.75rem', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, color: currentPath === '/nomina/registro-asistencia' || currentPath === '/nomina' ? '#02188E' : '#6b7280', textDecoration: 'none' }}>
+                      Registro de Asistencia
+                    </Link>
+                  </li>
+                  <li style={{ marginBottom: '0.15rem' }}>
+                    <Link to="/nomina/horas-extras" style={{ display: 'block', padding: '0.4rem 0.75rem', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, color: currentPath === '/nomina/horas-extras' ? '#02188E' : '#6b7280', textDecoration: 'none' }}>
+                      Horas Extras
+                    </Link>
+                  </li>
+                  <li style={{ marginBottom: '0.15rem' }}>
+                    <Link to="/nomina/vacaciones" style={{ display: 'block', padding: '0.4rem 0.75rem', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, color: currentPath === '/nomina/vacaciones' ? '#02188E' : '#6b7280', textDecoration: 'none' }}>
+                      Vacaciones
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/nomina/nomina-mes" style={{ display: 'block', padding: '0.4rem 0.75rem', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, color: currentPath === '/nomina/nomina-mes' ? '#02188E' : '#6b7280', textDecoration: 'none' }}>
+                      Nómina Mes
+                    </Link>
+                  </li>
+                </ul>
+              )}
             </li>
 
             <li className={currentPath.startsWith('/proformas') ? 'active' : ''}>
@@ -160,19 +213,6 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
               </Link>
             </li>
 
-            <li className={currentPath.startsWith('/asistencias') ? 'active' : ''}>
-              <Link to="/asistencias">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
-                </svg>
-                <span className="sidebar-link-text">Asistencias</span>
-                {!isCollapsed && (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-                )}
-              </Link>
-            </li>
 
             <li>
               <a href="#events">

@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from '../features/auth/infrastructure/ui/Login';
 import { Layout } from '../shared/ui/components/Layout';
 import NominaFeature from '../features/nomina/ui';
+import ProformasFeature from '../features/proformas/ui';
 import './index.css';
 
 function DashboardHome() {
@@ -59,6 +60,7 @@ function App() {
       <Routes>
         <Route path="/" element={<DashboardHome />} />
         <Route path="/nomina/*" element={<NominaFeature />} />
+        <Route path="/proformas/*" element={<ProformasFeature />} />
         {/* Redirección por defecto */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
