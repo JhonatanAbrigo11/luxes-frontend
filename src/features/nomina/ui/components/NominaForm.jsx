@@ -104,8 +104,10 @@ export const NominaForm = ({ empleado, rawNomina, onSave, onCancel }) => {
   };
 
   if (!calculoEnTiempoReal) return null;  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto animate-fade-blur">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-slide-up">
+    <div className="fixed inset-0 z-50">
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-md" onClick={onCancel} />
+      <div className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
+        <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-slide-up pointer-events-auto">
         
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-900 via-blue-950 to-indigo-950 px-8 py-5 text-white flex justify-between items-center">
@@ -482,6 +484,7 @@ export const NominaForm = ({ empleado, rawNomina, onSave, onCancel }) => {
 
         </form>
 
+        </div>
       </div>
     </div>
   );
