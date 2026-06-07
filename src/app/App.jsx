@@ -10,49 +10,18 @@ import ProyectosFeature from '../features/proyectos/ui/index.jsx';
 import { ProyectosProvider } from '../features/proyectos/application/context/ProyectosContext.jsx';
 import ProformasFeature from '../features/proformas/ui';
 import ClientesFeature from '../features/clientes/ui';
+import ProveedoresFeature from '../features/proveedores/ui';
+import ContactosFeature from '../features/contactos/ui';
+import UsuariosFeature from '../features/usuarios/ui';
+import ComprasFeature from '../features/compras/ui';
+import VentasFeature from '../features/ventas/ui';
+import GastosFeature from '../features/gastos/ui';
 import { EncuestaPage } from '../features/proyectos/ui/pages/EncuestaPage.jsx';
 import { InstalacionesPage } from '../features/instalaciones/ui/InstalacionesPage.jsx';
 import { InventarioPage } from '../features/inventario/ui/InventarioPage.jsx';
 import { MaterialesRequestPage } from '../features/instalaciones/ui/MaterialesRequestPage.jsx';
+import DashboardPage from '../features/dashboard/ui/pages/DashboardPage.jsx';
 import './index.css';
-
-function DashboardHome() {
-  return (
-    <div className="dashboard-content">
-      <h1 style={{ marginBottom: '1rem', color: 'var(--color-primary-blue)', fontSize: '2rem' }}>Dashboard</h1>
-      <p style={{ color: 'var(--color-dark-gray)', fontSize: '1.1rem', marginBottom: '2rem' }}>
-        Welcome to the LUXES 2026 management portal. Select an option from the sidebar to begin.
-      </p>
-      
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-        gap: '1.5rem'
-      }}>
-        <div style={{
-          background: 'white',
-          padding: '2rem',
-          borderRadius: '12px',
-          boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
-          borderTop: '4px solid var(--color-primary-green)'
-        }}>
-          <h3 style={{ color: 'var(--color-primary-blue)' }}>Upcoming Events</h3>
-          <p style={{ marginTop: '0.75rem', color: 'var(--color-dark-gray)' }}>No events scheduled for this week.</p>
-        </div>
-        <div style={{
-          background: 'white',
-          padding: '2rem',
-          borderRadius: '12px',
-          boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
-          borderTop: '4px solid var(--color-accent-red)'
-        }}>
-          <h3 style={{ color: 'var(--color-primary-blue)' }}>System Status</h3>
-          <p style={{ marginTop: '0.75rem', color: 'var(--color-dark-gray)' }}>All systems operational.</p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -81,7 +50,7 @@ function App() {
     <ProyectosProvider>
       <Layout>
         <Routes>
-          <Route path="/" element={<DashboardHome />} />
+          <Route path="/" element={<DashboardPage />} />
           <Route path="/nomina/*" element={<NominaFeature />} />
           <Route path="/impresiones" element={<ImpresionesPage />} />
           <Route path="/colas-impresion" element={<ColasImpresionPage />} />
@@ -91,6 +60,12 @@ function App() {
           <Route path="/proyectos/*" element={<ProyectosFeature />} />
           <Route path="/proformas/*" element={<ProformasFeature />} />
           <Route path="/clientes/*" element={<ClientesFeature />} />
+          <Route path="/proveedores/*" element={<ProveedoresFeature />} />
+          <Route path="/contactos/*" element={<ContactosFeature />} />
+          <Route path="/usuarios/*" element={<UsuariosFeature />} />
+          <Route path="/compras/*" element={<ComprasFeature />} />
+          <Route path="/ventas/*" element={<VentasFeature />} />
+          <Route path="/gastos/*" element={<GastosFeature />} />
           {/* Redirección por defecto */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

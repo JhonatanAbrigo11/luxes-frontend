@@ -311,21 +311,21 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
                       <span className="sidebar-submenu-text">Clientes</span>
                     </Link>
                   </li>
-                  <li>
-                    <a href="#proveedores" className="sidebar-submenu-link">
+                  <li className={currentPath.startsWith('/proveedores') ? 'submenu-active' : ''}>
+                    <Link to="/proveedores" className="sidebar-submenu-link">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
                       </svg>
                       <span className="sidebar-submenu-text">Proveedores</span>
-                    </a>
+                    </Link>
                   </li>
-                  <li>
-                    <a href="#contactos" className="sidebar-submenu-link">
+                  <li className={currentPath.startsWith('/contactos') ? 'submenu-active' : ''}>
+                    <Link to="/contactos" className="sidebar-submenu-link">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25" />
                       </svg>
                       <span className="sidebar-submenu-text">Contactos</span>
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               )}
