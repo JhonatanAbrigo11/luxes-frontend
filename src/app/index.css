@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 :root {
   --color-primary-blue: #02188E;
   --color-secondary-blue: #0433FF;
@@ -45,6 +43,4 @@ a {
 button {
   font-family: var(--font-main);
   cursor: pointer;
-  border: none;
-  background: none;
 }

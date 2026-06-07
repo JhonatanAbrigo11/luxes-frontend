@@ -4,8 +4,16 @@ import './Sidebar.css';
 
 export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isPrintOpen, setIsPrintOpen] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
+
+  // Auto-open print submenu when on a print-related route
+  React.useEffect(() => {
+    if (currentPath.startsWith('/impresiones') || currentPath.startsWith('/colas-impresion')) {
+      setIsPrintOpen(true);
+    }
+  }, [currentPath]);
 
   return (
     <aside 
@@ -90,18 +98,51 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
               </Link>
             </li>
 
-            <li className={currentPath.startsWith('/impresiones') ? 'active' : ''}>
-              <Link to="/impresiones">
+            {/* Módulo padre: Taller de Impresión */}
+            <li className={`sidebar-has-submenu ${isPrintOpen ? 'submenu-open' : ''} ${(currentPath.startsWith('/impresiones') || currentPath.startsWith('/colas-impresion')) ? 'active' : ''}`}>
+              <button
+                type="button"
+                onClick={() => setIsPrintOpen(!isPrintOpen)}
+                className="sidebar-submenu-toggle"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2m2 4h6a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2zm8-12V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v4" />
                 </svg>
-                <span className="sidebar-link-text">Impresiones</span>
+                <span className="sidebar-link-text">Taller de Impresión</span>
                 {!isCollapsed && (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className={`chevron-icon submenu-chevron ${isPrintOpen ? 'rotated' : ''}`}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                   </svg>
                 )}
-              </Link>
+              </button>
+
+              {!isCollapsed && isPrintOpen && (
+                <ul className="sidebar-submenu">
+                  <li className={currentPath.startsWith('/impresiones') ? 'submenu-active' : ''}>
+                    <Link to="/impresiones" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2m2 4h6a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2zm8-12V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v4" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Impresiones</span>
+                    </Link>
+                  </li>
+                  <li className={currentPath.startsWith('/colas-impresion') ? 'submenu-active' : ''}>
+                    <Link to="/colas-impresion" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 8.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v8.25A2.25 2.25 0 0 0 6 16.5h2.25m3.375-3.375V18a2.25 2.25 0 0 0 2.25 2.25H18A2.25 2.25 0 0 0 20.25 18v-5.25A2.25 2.25 0 0 0 18 10.5h-5.25a2.25 2.25 0 0 0-2.25 2.25z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Colas de Impresión</span>
+                    </Link>
+                  </li>
+                </ul>
+              )}
             </li>
 
             <li className={currentPath.startsWith('/gastos') ? 'active' : ''}>
@@ -124,6 +165,20 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9l2 2 4-4" />
                 </svg>
                 <span className="sidebar-link-text">Gestion de Proyectos</span>
+                {!isCollapsed && (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                )}
+              </Link>
+            </li>
+
+            <li className={currentPath.startsWith('/instalaciones') ? 'active' : ''}>
+              <Link to="/instalaciones">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                </svg>
+                <span className="sidebar-link-text">Instalaciones</span>
                 {!isCollapsed && (
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
