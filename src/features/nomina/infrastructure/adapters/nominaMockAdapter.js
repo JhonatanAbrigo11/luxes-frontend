@@ -7,9 +7,9 @@ import { HoraExtra } from '../../domain/entities/HoraExtra';
 import { empleadosMock, nominasMock, horasExtrasMock } from '../mock/nominaData';
 
 // Cache local en memoria compartida para simular una base de datos reactiva
-let dbEmployees = [...empleadosMock];
 let dbPayrolls = [...nominasMock];
 let dbOvertime = [...horasExtrasMock];
+let dbEmployees = [...empleadosMock];
 
 /**
  * Adaptador Mock en Memoria para Nómina.

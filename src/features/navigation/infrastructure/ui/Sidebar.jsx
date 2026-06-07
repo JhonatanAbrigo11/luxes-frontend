@@ -5,13 +5,18 @@ import './Sidebar.css';
 export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isPrintOpen, setIsPrintOpen] = useState(false);
+  const [isNominaOpen, setIsNominaOpen] = useState(false);
+  const [isRelacionesOpen, setIsRelacionesOpen] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // Auto-open print submenu when on a print-related route
+  // Auto-open submenus based on current route
   React.useEffect(() => {
     if (currentPath.startsWith('/impresiones') || currentPath.startsWith('/colas-impresion')) {
       setIsPrintOpen(true);
+    }
+    if (currentPath.startsWith('/nomina')) {
+      setIsNominaOpen(true);
     }
   }, [currentPath]);
 
@@ -55,19 +60,75 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
         <div className="sidebar-category">
           <span className="sidebar-category-title">MÓDULOS</span>
           <ul>
-            <li className={currentPath.startsWith('/nomina') ? 'active' : ''}>
-              <Link to="/nomina">
+            <li className={`sidebar-has-submenu ${isNominaOpen ? 'submenu-open' : ''} ${currentPath.startsWith('/nomina') ? 'active' : ''}`}>
+              <button
+                type="button"
+                onClick={() => setIsNominaOpen(prev => !prev)}
+                className="sidebar-submenu-toggle"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
                   <line x1="12" y1="1" x2="12" y2="23"></line>
                   <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
                 <span className="sidebar-link-text">Nómina</span>
                 {!isCollapsed && (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className={`chevron-icon submenu-chevron ${isNominaOpen ? 'rotated' : ''}`}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                   </svg>
                 )}
-              </Link>
+              </button>
+
+              {!isCollapsed && isNominaOpen && (
+                <ul className="sidebar-submenu">
+                  <li className={currentPath.startsWith('/nomina/empleados') ? 'submenu-active' : ''}>
+                    <Link to="/nomina/empleados" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Empleados</span>
+                    </Link>
+                  </li>
+                  <li className={currentPath === '/nomina/credenciales' ? 'submenu-active' : ''}>
+                    <Link to="/nomina/credenciales" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Credenciales</span>
+                    </Link>
+                  </li>
+                  <li className={currentPath === '/nomina/registro-asistencia' || currentPath === '/nomina' ? 'submenu-active' : ''}>
+                    <Link to="/nomina/registro-asistencia" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Registro de Asistencia</span>
+                    </Link>
+                  </li>
+                  <li className={currentPath === '/nomina/horas-extras' ? 'submenu-active' : ''}>
+                    <Link to="/nomina/horas-extras" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Horas Extras</span>
+                    </Link>
+                  </li>
+                  <li className={currentPath === '/nomina/vacaciones' ? 'submenu-active' : ''}>
+                    <Link to="/nomina/vacaciones" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Vacaciones</span>
+                    </Link>
+                  </li>
+                </ul>
+              )}
             </li>
 
             <li className={currentPath.startsWith('/proformas') ? 'active' : ''}>
@@ -215,53 +276,62 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
               </Link>
             </li>
 
-            <li className={currentPath.startsWith('/asistencias') ? 'active' : ''}>
-              <Link to="/asistencias">
+            {/* Módulo: Relaciones */}
+            <li className={`sidebar-has-submenu ${isRelacionesOpen ? 'submenu-open' : ''}`}>
+              <button
+                type="button"
+                onClick={() => setIsRelacionesOpen(!isRelacionesOpen)}
+                className="sidebar-submenu-toggle"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
                 </svg>
-                <span className="sidebar-link-text">Asistencias</span>
+                <span className="sidebar-link-text">Relaciones</span>
                 {!isCollapsed && (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className={`chevron-icon submenu-chevron ${isRelacionesOpen ? 'rotated' : ''}`}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                   </svg>
                 )}
-              </Link>
+              </button>
+
+              {!isCollapsed && isRelacionesOpen && (
+                <ul className="sidebar-submenu">
+                  <li className={currentPath.startsWith('/clientes') ? 'submenu-active' : ''}>
+                    <Link to="/clientes" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Clientes</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <a href="#proveedores" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Proveedores</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#contactos" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Contactos</span>
+                    </a>
+                  </li>
+                </ul>
+              )}
             </li>
 
-            <li>
-              <a href="#events">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                <span className="sidebar-link-text">Events</span>
-                {!isCollapsed && (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-                )}
-              </a>
-            </li>
 
-            <li>
-              <a href="#teams">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-                <span className="sidebar-link-text">Teams</span>
-                {!isCollapsed && (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-                )}
-              </a>
-            </li>
           </ul>
         </div>
 

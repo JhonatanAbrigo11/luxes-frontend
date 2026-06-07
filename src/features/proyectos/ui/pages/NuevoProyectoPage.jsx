@@ -1,10 +1,11 @@
 // src/features/proyectos/ui/pages/NuevoProyectoPage.jsx
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Check, Search, ChevronDown, Info, ClipboardList } from 'lucide-react';
 import { useProyectos } from '../../application/hooks/useProyectos.js';
 import { empleadosDisponiblesMock } from '../../infrastructure/mock/proyectosData.js';
+import { getClientes } from '../../../clientes/application/clientesService.js';
 
 const PRIORIDADES = ['BAJA', 'MEDIA', 'ALTA', 'URGENTE'];
 const PRIORIDAD_COLORS = {
@@ -13,12 +14,6 @@ const PRIORIDAD_COLORS = {
   ALTA: 'bg-orange-50 text-orange-700',
   URGENTE: 'bg-red-50 text-red-700',
 };
-
-const clientesMock = [
-  { id: 1, nombre: 'Juan Pérez', empresa: 'Óptica Central', telefono: '0991234567', email: 'juan@optica.com', direccion: 'Av. 9 de Octubre y Pichincha, Guayaquil' },
-  { id: 2, nombre: 'María Gómez', empresa: 'Restaurante El Sabor', telefono: '0987654321', email: 'maria@elsabor.com', direccion: 'Urdesa Central, Av. Víctor Emilio Estrada 456, Guayaquil' },
-  { id: 3, nombre: 'Carlos Silva', empresa: 'Constructora CS', telefono: '0971112223', email: 'carlos@cs.com', direccion: 'Vía a la Costa, Km 11.5, Guayaquil' },
-];
 
 const EMPTY_FORM = {
   nombre: '',
@@ -41,6 +36,15 @@ export default function NuevoProyectoPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [guardando, setGuardando] = useState(false);
+  const [clientes, setClientes] = useState([]);
+  const [clientesLoading, setClientesLoading] = useState(true);
+
+  useEffect(() => {
+    getClientes().then(data => {
+      setClientes(data);
+      setClientesLoading(false);
+    });
+  }, []);
 
   // Estados para buscadores
   const [clientSearch, setClientSearch] = useState('');
@@ -75,7 +79,7 @@ export default function NuevoProyectoPage() {
     
     setGuardando(true);
     try {
-      const clienteObj = clientesMock.find(c => c.id.toString() === form.clienteId) || clientesMock[0];
+      const clienteObj = clientes.find(c => c.id === form.clienteId) || clientes[0];
 
       const proyecto = await addProyecto({
         nombre: form.nombre,
@@ -87,7 +91,7 @@ export default function NuevoProyectoPage() {
         requiereInstalacion: form.requiereInstalacion,
         cliente: {
           nombre: clienteObj.nombre,
-          empresa: clienteObj.empresa,
+          empresa: clienteObj.tipo === 'Empresa' ? clienteObj.nombre : '',
           telefono: clienteObj.telefono,
           email: clienteObj.email,
           direccion: clienteObj.direccion || '',
@@ -175,7 +179,7 @@ export default function NuevoProyectoPage() {
               <Search size={16} className="text-slate-400 mr-2 shrink-0" />
               <input
                 type="text"
-                placeholder="Buscar empresa o nombre..."
+                placeholder="Buscar cliente…"
                 className="w-full bg-transparent outline-none text-slate-800 placeholder-slate-400"
                 value={clientSearch}
                 onChange={(e) => {
@@ -194,20 +198,25 @@ export default function NuevoProyectoPage() {
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setClientDropdownOpen(false)} />
                 <div className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-xl z-20 max-h-60 overflow-y-auto overflow-hidden">
-                  {clientesMock.filter(c => c.empresa.toLowerCase().includes(clientSearch.toLowerCase())).length > 0 ? (
-                    clientesMock.filter(c => c.empresa.toLowerCase().includes(clientSearch.toLowerCase())).map(c => (
+                  {clientesLoading ? (
+                    <div className="px-4 py-6 text-center text-slate-400 text-sm">Cargando clientes…</div>
+                  ) : clientes.filter(c => c.nombre.toLowerCase().includes(clientSearch.toLowerCase())).length > 0 ? (
+                    clientes.filter(c => c.nombre.toLowerCase().includes(clientSearch.toLowerCase())).map(c => (
                       <div
                         key={c.id}
                         className={`px-4 py-3 hover:bg-blue-50 cursor-pointer transition-colors border-b border-slate-50 last:border-0
-                          ${form.clienteId === c.id.toString() ? 'bg-blue-50' : ''}`}
+                          ${form.clienteId === c.id ? 'bg-blue-50' : ''}`}
                         onClick={() => {
-                          set('clienteId', c.id.toString());
-                          setClientSearch(c.empresa);
+                          set('clienteId', c.id);
+                          setClientSearch(c.nombre);
                           setClientDropdownOpen(false);
                         }}
                       >
-                        <p className="font-semibold text-slate-800 text-sm">{c.empresa}</p>
-                        <p className="text-xs text-slate-500 mt-0.5">{c.nombre}</p>
+                        <div className="flex items-center justify-between">
+                          <p className="font-semibold text-slate-800 text-sm">{c.nombre}</p>
+                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${c.tipo === 'Empresa' ? 'text-indigo-600 bg-indigo-50' : 'text-blue-600 bg-blue-50'}`}>{c.tipo}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-0.5">{c.cedulaRuc} · {c.telefono}</p>
                       </div>
                     ))
                   ) : (

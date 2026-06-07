@@ -1,6 +1,7 @@
 // c:/Users/Morqu/OneDrive/Documentos/JAIMS/Luxes/luxes-frontend/src/features/nomina/ui/components/NominaForm.jsx
 
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { Nomina } from '../../domain/entities/Nomina';
 import { calcularNomina } from '../../domain/use-cases/calcularNomina';
 
@@ -103,9 +104,12 @@ export const NominaForm = ({ empleado, rawNomina, onSave, onCancel }) => {
     }
   };
 
-  if (!calculoEnTiempoReal) return null;  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto animate-fade-blur">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-slide-up">
+  if (!calculoEnTiempoReal) return null;
+  return createPortal(
+    <>
+      <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-md" />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-slide-up">
         
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-900 via-blue-950 to-indigo-950 px-8 py-5 text-white flex justify-between items-center">
@@ -483,6 +487,7 @@ export const NominaForm = ({ empleado, rawNomina, onSave, onCancel }) => {
         </form>
 
       </div>
-    </div>
+    </>,
+    document.body
   );
 };

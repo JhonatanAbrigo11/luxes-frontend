@@ -29,22 +29,16 @@ export const HorasExtrasPage = () => {
 
   return (
     <div className="space-y-6">
-      
-      {/* Cabecera / Breadcrumbs */}
-      <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wider">
-        <button onClick={() => navigate('/nomina')} className="hover:text-blue-700 font-bold transition-all">Nómina</button>
-        <span>/</span>
-        <span className="font-semibold text-gray-800">Horas Extras</span>
-      </div>
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-xl px-5 py-4 flex items-center justify-between gap-4 flex-wrap mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-blue-900 tracking-tight">Registro de Horas Extras</h1>
-          <p className="text-gray-500 text-sm mt-1">Planilla diaria de horas extras laboradas por colaborador.</p>
+          <h1 className="text-xl font-bold text-slate-800">Registro de Horas Extras</h1>
+          <p className="text-sm text-slate-500">Planilla diaria de horas extras laboradas por colaborador.</p>
         </div>
         <button
           onClick={() => navigate('/nomina')}
-          className="px-4 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl text-xs shadow-2xs transition-all duration-200"
+          className="flex items-center gap-2 px-4 py-2 text-white rounded-xl font-semibold text-sm transition-opacity hover:opacity-90 shadow-sm shrink-0"
+          style={{ backgroundColor: '#1d4ed8' }}
         >
           Volver a Nómina
         </button>

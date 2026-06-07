@@ -8,6 +8,8 @@ import { ImpresionesPage } from '../features/impresiones/ui/ImpresionesPage';
 import { PrintQueueProvider } from '../features/colas-impresion/context/PrintQueueContext';
 import ProyectosFeature from '../features/proyectos/ui/index.jsx';
 import { ProyectosProvider } from '../features/proyectos/application/context/ProyectosContext.jsx';
+import ProformasFeature from '../features/proformas/ui';
+import ClientesFeature from '../features/clientes/ui';
 import { EncuestaPage } from '../features/proyectos/ui/pages/EncuestaPage.jsx';
 import { InstalacionesPage } from '../features/instalaciones/ui/InstalacionesPage.jsx';
 import { InventarioPage } from '../features/inventario/ui/InventarioPage.jsx';
@@ -87,6 +89,8 @@ function App() {
           <Route path="/instalaciones/:id/materiales" element={<MaterialesRequestPage />} />
           <Route path="/inventario" element={<InventarioPage />} />
           <Route path="/proyectos/*" element={<ProyectosFeature />} />
+          <Route path="/proformas/*" element={<ProformasFeature />} />
+          <Route path="/clientes/*" element={<ClientesFeature />} />
           {/* Redirección por defecto */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

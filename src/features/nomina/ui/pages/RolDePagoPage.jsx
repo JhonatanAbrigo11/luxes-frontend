@@ -59,17 +59,16 @@ export const RolDePagoPage = () => {
 
   return (
     <div className="space-y-6">
-      
-      {/* Cabecera / Breadcrumbs - Ocultos al Imprimir */}
-      <div className="flex items-center justify-between gap-4 print:hidden">
-        <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wider">
-          <button onClick={() => navigate('/nomina')} className="hover:text-blue-700 font-bold transition-all">Nómina</button>
-          <span>/</span>
-          <span className="font-semibold text-gray-800">Rol de Pago</span>
+
+      <div className="bg-white border border-slate-200 rounded-xl px-5 py-4 flex items-center justify-between gap-4 flex-wrap mb-6 print:hidden">
+        <div>
+          <h1 className="text-xl font-bold text-slate-800">Rol de Pago</h1>
+          <p className="text-sm text-slate-500">{empleado.nombre} — {empleado.cargo}</p>
         </div>
         <button
           onClick={() => navigate('/nomina')}
-          className="px-4 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl text-xs shadow-2xs transition-all duration-200"
+          className="flex items-center gap-2 px-4 py-2 text-white rounded-xl font-semibold text-sm transition-opacity hover:opacity-90 shadow-sm shrink-0"
+          style={{ backgroundColor: '#1d4ed8' }}
         >
           Volver a Nómina
         </button>
