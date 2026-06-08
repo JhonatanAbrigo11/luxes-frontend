@@ -127,6 +127,14 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
                       <span className="sidebar-submenu-text">Vacaciones</span>
                     </Link>
                   </li>
+                  <li className={currentPath === '/nomina/nomina-del-mes' ? 'submenu-active' : ''}>
+                    <Link to="/nomina/nomina-del-mes" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-6.75 3h16.5a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5H4.5a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Nómina del Mes</span>
+                    </Link>
+                  </li>
                 </ul>
               )}
             </li>

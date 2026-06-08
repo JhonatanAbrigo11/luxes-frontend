@@ -7,6 +7,7 @@ import { RegistrosPage } from '../../asistencia/ui/pages/RegistrosPage';
 import { VacacionesPage } from './pages/VacacionesPage';
 import { HorasExtrasPage } from './pages/HorasExtrasPage';
 import { RolDePagoPage } from './pages/RolDePagoPage';
+import { NominaMesPage } from './pages/NominaMesPage';
 import EmpleadosFeature from '../../empleados/ui';
 import './styles/Nomina.css';
 
@@ -23,6 +24,7 @@ export default function NominaFeature() {
         <Route path="horas-extras" element={<HorasExtrasPage />} />
         <Route path="empleados/*" element={<EmpleadosFeature />} />
         <Route path="rol/:empleadoId" element={<RolDePagoPage />} />
+        <Route path="nomina-del-mes" element={<NominaMesPage />} />
         <Route path="*" element={<Navigate to="registro-asistencia" replace />} />
       </Routes>
     </NominaProvider>
