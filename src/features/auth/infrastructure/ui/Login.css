@@ -133,6 +133,10 @@
   opacity: 0;
 }
 
+.login-mobile-logo {
+  display: none;
+}
+
 .login-form-title {
   font-size: 2.15rem;
   font-weight: 700;
@@ -345,6 +349,16 @@
 @media (max-width: 900px) {
   .login-branding-panel {
     display: none; /* Ocultar el panel de marca en pantallas pequeñas */
+  }
+
+  .login-mobile-logo {
+    display: block;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem auto;
+    box-shadow: 0 4px 12px rgba(11, 94, 215, 0.15);
+    border: 2px solid #ffffff;
   }
 
   .login-unified-card {

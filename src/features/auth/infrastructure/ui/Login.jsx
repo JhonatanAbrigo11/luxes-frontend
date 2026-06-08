@@ -53,6 +53,7 @@ export const Login = ({ onLogin }) => {
           <div className="login-form-content">
 
             <div className="login-form-header">
+              <img src="/Logo.jpg" alt="Luxes Logo" className="login-mobile-logo" />
               <h2 className="login-form-title">Bienvenido</h2>
               <p className="login-form-subtitle">Inicia sesión para continuar</p>
             </div>

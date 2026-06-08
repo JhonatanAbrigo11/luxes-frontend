@@ -265,46 +265,62 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
     const completados=marcaciones.length; const total=calcTotalHours(marcaciones);
     const ubicacion=entrada?.ubicacion||inicioAlm?.ubicacion||finAlm?.ubicacion||salida?.ubicacion||null;
     return (
-      <div key={emp.id} className="grid grid-cols-12 gap-3 px-5 py-3 items-center hover:bg-gray-50/60 transition-colors">
-        <div className="col-span-3 flex items-center gap-3 min-w-0">
+      <div key={emp.id} className="flex flex-col md:grid md:grid-cols-12 gap-3 px-5 py-3 items-stretch md:items-center hover:bg-gray-50/60 transition-colors border-b border-gray-100 last:border-b-0">
+        <div className="md:col-span-3 flex items-center justify-between min-w-0">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-gray-800 truncate">{emp.nombre}</p>
+            <p className="text-sm font-bold text-gray-800 truncate">{emp.nombre}</p>
             <p className="text-[10px] font-medium text-gray-400">{emp.id}</p>
           </div>
-        </div>
-        <div className="col-span-5 flex items-center gap-0">
-          <div className={`flex flex-col items-center flex-1 ${entrada?'':'opacity-25'}`}>
-            <span className={`text-[10px] font-semibold mb-0.5 ${entrada?'text-blue-600':'text-gray-300'}`}>Entrada</span>
-            <span className={`text-xs font-mono font-bold ${entrada?'text-blue-700':'text-gray-300'}`}>{formatTime(entrada?.fechaHora)}</span>
-          </div>
-          <div className="flex-1 flex items-center justify-center"><svg className="w-3 h-3 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg></div>
-          <div className={`flex flex-col items-center flex-1 ${inicioAlm?'':'opacity-25'}`}>
-            <span className={`text-[10px] font-semibold mb-0.5 ${inicioAlm?'text-amber-600':'text-gray-300'}`}>Inicio Alm.</span>
-            <span className={`text-xs font-mono font-bold ${inicioAlm?'text-amber-700':'text-gray-300'}`}>{formatTime(inicioAlm?.fechaHora)}</span>
-          </div>
-          <div className="flex-1 flex items-center justify-center"><svg className="w-3 h-3 text-amber-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg></div>
-          <div className={`flex flex-col items-center flex-1 ${finAlm?'':'opacity-25'}`}>
-            <span className={`text-[10px] font-semibold mb-0.5 ${finAlm?'text-orange-600':'text-gray-300'}`}>Fin Alm.</span>
-            <span className={`text-xs font-mono font-bold ${finAlm?'text-orange-700':'text-gray-300'}`}>{formatTime(finAlm?.fechaHora)}</span>
-          </div>
-          <div className="flex-1 flex items-center justify-center"><svg className="w-3 h-3 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg></div>
-          <div className={`flex flex-col items-center flex-1 ${salida?'':'opacity-25'}`}>
-            <span className={`text-[10px] font-semibold mb-0.5 ${salida?'text-indigo-600':'text-gray-300'}`}>Salida</span>
-            <span className={`text-xs font-mono font-bold ${salida?'text-indigo-700':'text-gray-300'}`}>{formatTime(salida?.fechaHora)}</span>
+          {/* Badge & Total on Mobile */}
+          <div className="flex items-center gap-2 md:hidden">
+            {completados===4 ? (
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                Completo
+              </span>
+            ) : completados>0 ? (
+              <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">{completados}/4</span>
+            ) : (
+              <span className="text-[10px] font-semibold text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-200">Pendiente</span>
+            )}
+            {total&&<span className="text-[10px] font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-200 whitespace-nowrap">{total}</span>}
           </div>
         </div>
-        <div className="col-span-4 flex items-center justify-end gap-3">
-          {completados===4 ? (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-              Completo
-            </span>
-          ) : completados>0 ? (
-            <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">{completados}/4</span>
-          ) : (
-            <span className="text-[11px] font-semibold text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-200">Pendiente</span>
-          )}
-          {total&&<span className="text-[11px] font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-200 whitespace-nowrap">{total}</span>}
+        <div className="md:col-span-5 flex items-center justify-between bg-slate-50 md:bg-transparent p-2.5 md:p-0 rounded-xl gap-1">
+          <div className="flex flex-col items-center flex-1">
+            <span className={`text-[9px] font-semibold mb-0.5 ${entrada?'text-blue-600':'text-gray-400'}`}>Entrada</span>
+            <span className={`text-xs font-mono font-bold ${entrada?'text-blue-700':'text-gray-500'}`}>{formatTime(entrada?.fechaHora)}</span>
+          </div>
+          <svg className="w-3 h-3 text-blue-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
+          <div className="flex flex-col items-center flex-1">
+            <span className={`text-[9px] font-semibold mb-0.5 ${inicioAlm?'text-amber-600':'text-gray-400'}`}>Almuerzo</span>
+            <span className={`text-xs font-mono font-bold ${inicioAlm?'text-amber-700':'text-gray-500'}`}>{formatTime(inicioAlm?.fechaHora)}</span>
+          </div>
+          <svg className="w-3 h-3 text-amber-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
+          <div className="flex flex-col items-center flex-1">
+            <span className={`text-[9px] font-semibold mb-0.5 ${finAlm?'text-orange-600':'text-gray-400'}`}>Fin Alm.</span>
+            <span className={`text-xs font-mono font-bold ${finAlm?'text-orange-700':'text-gray-500'}`}>{formatTime(finAlm?.fechaHora)}</span>
+          </div>
+          <svg className="w-3 h-3 text-gray-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
+          <div className="flex flex-col items-center flex-1">
+            <span className={`text-[9px] font-semibold mb-0.5 ${salida?'text-indigo-600':'text-gray-400'}`}>Salida</span>
+            <span className={`text-xs font-mono font-bold ${salida?'text-indigo-700':'text-gray-500'}`}>{formatTime(salida?.fechaHora)}</span>
+          </div>
+        </div>
+        <div className="md:col-span-4 flex items-center justify-end gap-3 mt-1 md:mt-0">
+          {/* Badge & Total on Desktop */}
+          <div className="hidden md:flex items-center gap-3">
+            {completados===4 ? (
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                Completo
+              </span>
+            ) : completados>0 ? (
+              <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">{completados}/4</span>
+            ) : (
+              <span className="text-[11px] font-semibold text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-200">Pendiente</span>
+            )}
+            {total&&<span className="text-[11px] font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-200 whitespace-nowrap">{total}</span>}
+          </div>
           <MapaBoton ubicacion={ubicacion} />
         </div>
       </div>
@@ -319,14 +335,14 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
       <>
         <div className={`bg-white shadow-card rounded-xl border border-gray-100 overflow-hidden ${esFuturo?'opacity-60':''}`}>
           {/* Day tabs inside card, centered */}
-          <div className="flex justify-center gap-1.5 px-5 py-4 border-b border-gray-100 flex-wrap">
+          <div className="flex justify-start md:justify-center gap-1.5 px-5 py-4 border-b border-gray-100 overflow-x-auto scroll-smooth no-scrollbar">
             {diasSemana.map((d,i) => {
               const st = statusDia(d); const sel = diaIndex===i;
               const esHoy = st==='hoy';
               return (
                 <button key={i} onClick={()=>esHoy?setDiaIndex(i):null}
                   disabled={!esHoy}
-                  className={`flex flex-col items-center px-4 py-2 rounded-xl text-[10px] font-bold transition-all min-w-[56px] ${
+                  className={`flex flex-col items-center px-4 py-2 rounded-xl text-[10px] font-bold transition-all min-w-[56px] shrink-0 ${
                     sel ? 'bg-blue-900 text-white shadow-md ring-2 ring-blue-300' :
                     esHoy ? 'bg-blue-50 border border-blue-200 text-blue-700 cursor-pointer hover:bg-blue-100' :
                     'bg-gray-100 text-gray-300 cursor-not-allowed'
@@ -530,6 +546,8 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
         .kpi-card.completados::before { background: linear-gradient(90deg, #10b981, #34d399); }
         .kpi-card.parciales::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
         .kpi-card.sin-registro::before { background: linear-gradient(90deg, #94a3b8, #cbd5e1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
       {/* ── Header ─────────────────────────────────────────────── */}
@@ -563,7 +581,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
       </div>
 
       {/* ── KPIs ───────────────────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
           { label: 'Empleados activos', value: kpis.total, cssClass: 'total', color: 'text-blue-600' },
           { label: 'Jornadas completas (4/4)', value: kpis.completados, cssClass: 'completados', color: 'text-emerald-600' },
