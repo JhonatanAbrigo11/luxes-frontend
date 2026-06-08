@@ -74,9 +74,9 @@ export function calcularNomina(empleado, nomina) {
   const totalAbonado = roundTo2(nomina.abonos.reduce((sum, abono) => sum + abono.monto, 0));
   
   let estadoPago = "PENDIENTE";
-  if (totalAbonado >= netoRecibir && netoRecibir > 0) {
+  if (nomina.estado === "PAGADO" || (totalAbonado >= netoRecibir && netoRecibir > 0)) {
     estadoPago = "PAGADO";
-  } else if (totalAbonado > 0) {
+  } else if (nomina.estado === "ABONO_PARCIAL" || totalAbonado > 0) {
     estadoPago = "ABONO_PARCIAL";
   }
 

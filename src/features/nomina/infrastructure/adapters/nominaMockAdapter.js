@@ -40,14 +40,17 @@ export class NominaMockAdapter extends NominaRepositoryPort {
     );
 
     if (filtered.length === 0) {
+      const fInicio = new Date(fechaInicio);
+      const fFin    = new Date(fechaFin);
+      const diffDias = Math.floor((fFin - fInicio) / (1000 * 60 * 60 * 24)) + 1;
       // Crear registros vacíos por defecto para todos los empleados en este período
       const newPayrolls = dbEmployees.map(emp => {
         return new Nomina({
           empleadoId: emp.id,
           fechaInicio,
           fechaFin,
-          diasLaborables: 30,
-          diasLaborados: 30,
+          diasLaborables: diffDias,
+          diasLaborados: diffDias,
           permisoHoras: 0,
           ingresos: {
             decimoCuarto: 40.17,

@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Check, Search, ChevronDown, Info, ClipboardList } from 'lucide-react';
+import { ArrowLeft, Plus, Check, Search, ChevronDown, Info, ClipboardList, FileText } from 'lucide-react';
 import { useProyectos } from '../../application/hooks/useProyectos.js';
 import { empleadosDisponiblesMock } from '../../infrastructure/mock/proyectosData.js';
 import { getClientes } from '../../../clientes/application/clientesService.js';
+import { getProformas } from '../../../proformas/application/proformasService.js';
 
 const PRIORIDADES = ['BAJA', 'MEDIA', 'ALTA', 'URGENTE'];
 const PRIORIDAD_COLORS = {
@@ -45,6 +46,21 @@ export default function NuevoProyectoPage() {
       setClientesLoading(false);
     });
   }, []);
+
+  const [proformas, setProformas] = useState([]);
+  const [proformasLoading, setProformasLoading] = useState(false);
+
+  useEffect(() => {
+    if (!form.clienteId) { setProformas([]); return; }
+    const clienteObj = clientes.find(c => c.id === form.clienteId);
+    if (!clienteObj) { setProformas([]); return; }
+    setProformasLoading(true);
+    getProformas().then(all => {
+      const nombreLower = clienteObj.nombre.toLowerCase();
+      setProformas(all.filter(p => p.cliente.toLowerCase().includes(nombreLower) || nombreLower.includes(p.cliente.toLowerCase())));
+      setProformasLoading(false);
+    });
+  }, [form.clienteId, clientes]);
 
   // Estados para buscadores
   const [clientSearch, setClientSearch] = useState('');
@@ -226,6 +242,36 @@ export default function NuevoProyectoPage() {
               </>
             )}
           </div>
+
+          {form.clienteId && (
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                <FileText size={14} className="text-blue-500" />
+                Proformas vinculadas
+              </label>
+              {proformasLoading ? (
+                <div className="text-xs text-slate-400 py-2">Cargando proformas…</div>
+              ) : proformas.length > 0 ? (
+                <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
+                  {proformas.map(pf => (
+                    <div key={pf.id} className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5">
+                      <div>
+                        <p className="text-xs font-bold text-blue-800">{pf.id}</p>
+                        <p className="text-[10px] text-blue-600 mt-0.5">{pf.items.length} ítem(s) · Total {pf.items.reduce((s, i) => s + i.cantidad * i.precioUnitario, 0).toLocaleString('es-EC', { style: 'currency', currency: 'USD' })}</p>
+                      </div>
+                      <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                        pf.estado === 'Aprobada' ? 'bg-green-100 text-green-700' :
+                        pf.estado === 'Rechazada' ? 'bg-red-100 text-red-700' :
+                        'bg-yellow-100 text-yellow-700'
+                      }`}>{pf.estado}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-xs text-slate-400 italic py-2">No hay proformas vinculadas a este cliente.</div>
+              )}
+            </div>
+          )}
 
           <div className="flex-1 flex flex-col">
             <label className="block text-sm font-semibold text-slate-700 mb-2">Descripción del trabajo</label>
