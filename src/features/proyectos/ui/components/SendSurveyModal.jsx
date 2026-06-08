@@ -5,7 +5,7 @@ export function SendSurveyModal({ isOpen, onClose, proyecto, onConfirm }) {
   if (!isOpen) return null;
 
   // Texto prellenado para WhatsApp
-  const urlEncuesta = `http://localhost:5173/encuesta/${proyecto?.id || 'demo'}`;
+  const urlEncuesta = `${window.location.origin}/encuesta/${proyecto?.id || 'demo'}`;
   const nombreCliente = typeof proyecto?.cliente === 'object' ? proyecto?.cliente?.nombre : (proyecto?.cliente || 'Cliente');
   const mensajeDefault = `Hola ${nombreCliente}, en LUXES queremos seguir mejorando para brindarte el mejor servicio. Nos encantaría conocer tu opinión sobre el proyecto "${proyecto?.nombre || 'Proyecto'}". Por favor ingresa a este link para evaluar nuestro trabajo: ${urlEncuesta} ¡Gracias por tu confianza!`;
 
