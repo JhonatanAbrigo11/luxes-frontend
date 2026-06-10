@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Login } from '../features/auth/infrastructure/ui/Login';
+import { LandingPage } from '../features/auth/infrastructure/ui/LandingPage';
 import { Layout } from '../shared/ui/components/Layout';
 import NominaFeature from '../features/nomina/ui';
 import { ColasImpresionPage } from '../features/colas-impresion/ui/ColasImpresionPage';
@@ -42,7 +43,13 @@ function App() {
   }
 
   if (!isAuthenticated) {
-    return <Login onLogin={handleLogin} />;
+    return (
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
   }
 
   return (

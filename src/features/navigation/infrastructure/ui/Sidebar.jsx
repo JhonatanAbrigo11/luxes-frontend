@@ -1,16 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Sidebar.css';
+
+const CAROUSEL_SLIDES = [
+  { id: 'principal', label: 'Principal' },
+  { id: 'modulos', label: 'Módulos' },
+  { id: 'sistema', label: 'Sistema' },
+];
 
 export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isPrintOpen, setIsPrintOpen] = useState(false);
   const [isNominaOpen, setIsNominaOpen] = useState(false);
   const [isRelacionesOpen, setIsRelacionesOpen] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const touchStartX = useRef(null);
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // Auto-open submenus based on current route
+  const goToSlide = useCallback((index) => {
+    setCurrentSlide(Math.max(0, Math.min(CAROUSEL_SLIDES.length - 1, index)));
+  }, []);
+
+  const goNext = () => goToSlide(currentSlide + 1);
+  const goPrev = () => goToSlide(currentSlide - 1);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(delta) > 50) {
+      if (delta < 0) goNext();
+      else goPrev();
+    }
+    touchStartX.current = null;
+  };
+
+  // Auto-open submenus and sync carousel slide with current route
   React.useEffect(() => {
     if (currentPath.startsWith('/impresiones') || currentPath.startsWith('/colas-impresion')) {
       setIsPrintOpen(true);
@@ -18,7 +47,21 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
     if (currentPath.startsWith('/nomina')) {
       setIsNominaOpen(true);
     }
-  }, [currentPath]);
+    if (currentPath.startsWith('/clientes') || currentPath.startsWith('/proveedores') || currentPath.startsWith('/contactos')) {
+      setIsRelacionesOpen(true);
+    }
+    if (currentPath.startsWith('/usuarios')) {
+      setIsConfigOpen(true);
+    }
+
+    if (currentPath === '/') {
+      goToSlide(0);
+    } else if (currentPath.startsWith('/usuarios')) {
+      goToSlide(2);
+    } else {
+      goToSlide(1);
+    }
+  }, [currentPath, goToSlide]);
 
   return (
     <aside 
@@ -36,9 +79,20 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
         />
       </div>
 
-      {/* Navigation links with icons and categories */}
+      {/* Navigation carousel */}
       <nav className="sidebar-nav">
-        {/* CATEGORY: PRINCIPAL */}
+        <div
+          className="sidebar-carousel"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div className="sidebar-carousel-viewport">
+            <div
+              className="sidebar-carousel-track"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {/* SLIDE 1: PRINCIPAL */}
+              <div className="sidebar-carousel-slide">
         <div className="sidebar-category">
           <span className="sidebar-category-title">PRINCIPAL</span>
           <ul>
@@ -55,8 +109,10 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
             </li>
           </ul>
         </div>
+              </div>
 
-        {/* CATEGORY: MÓDULOS */}
+              {/* SLIDE 2: MÓDULOS */}
+              <div className="sidebar-carousel-slide">
         <div className="sidebar-category">
           <span className="sidebar-category-title">MÓDULOS</span>
           <ul>
@@ -342,8 +398,10 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
 
           </ul>
         </div>
+              </div>
 
-        {/* CATEGORY: SISTEMA */}
+              {/* SLIDE 3: SISTEMA */}
+              <div className="sidebar-carousel-slide">
         <div className="sidebar-category">
           <span className="sidebar-category-title">SISTEMA</span>
           <ul>
@@ -387,6 +445,54 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
               )}
             </li>
           </ul>
+        </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="sidebar-carousel-controls">
+            <button
+              type="button"
+              className="sidebar-carousel-btn"
+              onClick={goPrev}
+              disabled={currentSlide === 0}
+              aria-label="Sección anterior"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+              </svg>
+            </button>
+
+            <div className="sidebar-carousel-dots" role="tablist" aria-label="Secciones del menú">
+              {CAROUSEL_SLIDES.map((slide, index) => (
+                <button
+                  key={slide.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={currentSlide === index}
+                  aria-label={slide.label}
+                  className={`sidebar-carousel-dot ${currentSlide === index ? 'active' : ''}`}
+                  onClick={() => goToSlide(index)}
+                />
+              ))}
+            </div>
+
+            {!isCollapsed && (
+              <span className="sidebar-carousel-label">{CAROUSEL_SLIDES[currentSlide].label}</span>
+            )}
+
+            <button
+              type="button"
+              className="sidebar-carousel-btn"
+              onClick={goNext}
+              disabled={currentSlide === CAROUSEL_SLIDES.length - 1}
+              aria-label="Sección siguiente"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </button>
+          </div>
         </div>
       </nav>
 

@@ -133,6 +133,24 @@
   opacity: 0;
 }
 
+.login-back-link {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  border: none;
+  background: none;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.login-back-link:hover {
+  color: #0b5ed7;
+}
+
 .login-mobile-logo {
   display: none;
 }

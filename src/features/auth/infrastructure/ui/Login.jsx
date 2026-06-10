@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 export const Login = ({ onLogin }) => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -53,6 +55,13 @@ export const Login = ({ onLogin }) => {
           <div className="login-form-content">
 
             <div className="login-form-header">
+              <button
+                type="button"
+                className="login-back-link"
+                onClick={() => navigate('/')}
+              >
+                ← Volver al inicio
+              </button>
               <img src="/Logo.jpg" alt="Luxes Logo" className="login-mobile-logo" />
               <h2 className="login-form-title">Bienvenido</h2>
               <p className="login-form-subtitle">Inicia sesión para continuar</p>
