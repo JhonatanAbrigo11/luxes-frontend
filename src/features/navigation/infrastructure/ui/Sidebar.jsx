@@ -1,45 +1,20 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Sidebar.css';
 
-const CAROUSEL_SLIDES = [
-  { id: 'principal', label: 'Principal' },
-  { id: 'modulos', label: 'Módulos' },
-  { id: 'sistema', label: 'Sistema' },
-];
+export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogout }) => {
+  const userName = user?.nombre || 'Usuario';
+  const userRole = (user?.rol || 'visor').toUpperCase();
+  const userInitial = userName.charAt(0).toUpperCase();
 
-export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isPrintOpen, setIsPrintOpen] = useState(false);
   const [isNominaOpen, setIsNominaOpen] = useState(false);
   const [isRelacionesOpen, setIsRelacionesOpen] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const touchStartX = useRef(null);
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const goToSlide = useCallback((index) => {
-    setCurrentSlide(Math.max(0, Math.min(CAROUSEL_SLIDES.length - 1, index)));
-  }, []);
-
-  const goNext = () => goToSlide(currentSlide + 1);
-  const goPrev = () => goToSlide(currentSlide - 1);
-
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = (e) => {
-    if (touchStartX.current === null) return;
-    const delta = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(delta) > 50) {
-      if (delta < 0) goNext();
-      else goPrev();
-    }
-    touchStartX.current = null;
-  };
-
-  // Auto-open submenus and sync carousel slide with current route
+  // Auto-open submenus based on current route
   React.useEffect(() => {
     if (currentPath.startsWith('/impresiones') || currentPath.startsWith('/colas-impresion')) {
       setIsPrintOpen(true);
@@ -53,15 +28,7 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
     if (currentPath.startsWith('/usuarios')) {
       setIsConfigOpen(true);
     }
-
-    if (currentPath === '/') {
-      goToSlide(0);
-    } else if (currentPath.startsWith('/usuarios')) {
-      goToSlide(2);
-    } else {
-      goToSlide(1);
-    }
-  }, [currentPath, goToSlide]);
+  }, [currentPath]);
 
   return (
     <aside 
@@ -79,20 +46,8 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
         />
       </div>
 
-      {/* Navigation carousel */}
+      {/* Navigation menu list */}
       <nav className="sidebar-nav">
-        <div
-          className="sidebar-carousel"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div className="sidebar-carousel-viewport">
-            <div
-              className="sidebar-carousel-track"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-            >
-              {/* SLIDE 1: PRINCIPAL */}
-              <div className="sidebar-carousel-slide">
         <div className="sidebar-category">
           <span className="sidebar-category-title">PRINCIPAL</span>
           <ul>
@@ -109,10 +64,7 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
             </li>
           </ul>
         </div>
-              </div>
 
-              {/* SLIDE 2: MÓDULOS */}
-              <div className="sidebar-carousel-slide">
         <div className="sidebar-category">
           <span className="sidebar-category-title">MÓDULOS</span>
           <ul>
@@ -398,10 +350,7 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
 
           </ul>
         </div>
-              </div>
 
-              {/* SLIDE 3: SISTEMA */}
-              <div className="sidebar-carousel-slide">
         <div className="sidebar-category">
           <span className="sidebar-category-title">SISTEMA</span>
           <ul>
@@ -446,76 +395,45 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave }) => {
             </li>
           </ul>
         </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="sidebar-carousel-controls">
-            <button
-              type="button"
-              className="sidebar-carousel-btn"
-              onClick={goPrev}
-              disabled={currentSlide === 0}
-              aria-label="Sección anterior"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-              </svg>
-            </button>
-
-            <div className="sidebar-carousel-dots" role="tablist" aria-label="Secciones del menú">
-              {CAROUSEL_SLIDES.map((slide, index) => (
-                <button
-                  key={slide.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={currentSlide === index}
-                  aria-label={slide.label}
-                  className={`sidebar-carousel-dot ${currentSlide === index ? 'active' : ''}`}
-                  onClick={() => goToSlide(index)}
-                />
-              ))}
-            </div>
-
-            {!isCollapsed && (
-              <span className="sidebar-carousel-label">{CAROUSEL_SLIDES[currentSlide].label}</span>
-            )}
-
-            <button
-              type="button"
-              className="sidebar-carousel-btn"
-              onClick={goNext}
-              disabled={currentSlide === CAROUSEL_SLIDES.length - 1}
-              aria-label="Sección siguiente"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-              </svg>
-            </button>
-          </div>
-        </div>
       </nav>
 
       {/* Sidebar Footer - Profile Info / Logout */}
       <div className="sidebar-footer">
         {isCollapsed ? (
-          <a href="#logout" className="sidebar-profile-collapsed-btn" title="Cerrar sesión">
+          <a 
+            href="#logout" 
+            className="sidebar-profile-collapsed-btn" 
+            title="Cerrar sesión"
+            onClick={(e) => {
+              e.preventDefault();
+              onLogout();
+            }}
+          >
             <div className="avatar-circle">
-              <span>I</span>
+              <span>{userInitial}</span>
             </div>
           </a>
         ) : (
           <div className="sidebar-profile-container">
             <div className="sidebar-profile-info-box">
               <div className="avatar-circle">
-                <span>I</span>
+                <span>{userInitial}</span>
               </div>
               <div className="profile-info">
-                <span className="profile-name">ISAM</span>
-                <span className="profile-role">ADMIN</span>
+                <span className="profile-name">{userName}</span>
+                <span className="profile-role">{userRole}</span>
               </div>
             </div>
-            <a href="#logout" className="logout-trigger-btn" aria-label="Cerrar sesión" title="Cerrar sesión">
+            <a 
+              href="#logout" 
+              className="logout-trigger-btn" 
+              aria-label="Cerrar sesión" 
+              title="Cerrar sesión"
+              onClick={(e) => {
+                e.preventDefault();
+                onLogout();
+              }}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="logout-icon">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
               </svg>

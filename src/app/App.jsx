@@ -22,16 +22,35 @@ import { InstalacionesPage } from '../features/instalaciones/ui/InstalacionesPag
 import { InventarioPage } from '../features/inventario/ui/InventarioPage.jsx';
 import { MaterialesRequestPage } from '../features/instalaciones/ui/MaterialesRequestPage.jsx';
 import DashboardPage from '../features/dashboard/ui/pages/DashboardPage.jsx';
+import { ToastContainer } from '../shared/ui/components/Toast';
+import { ConfirmDialogContainer } from '../shared/ui/components/ConfirmModal';
 import './index.css';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!localStorage.getItem('token');
+  });
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
-  const handleLogin = () => {
+  const handleLogin = (token, user) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    setUser(user);
     setIsAuthenticated(true);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsAuthenticated(false);
+  };
+
   const location = useLocation();
+
 
   // Rutas públicas que no requieren autenticación
   if (location.pathname.startsWith('/encuesta/')) {
@@ -44,41 +63,49 @@ function App() {
 
   if (!isAuthenticated) {
     return (
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <>
+        <ToastContainer />
+        <ConfirmDialogContainer />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </>
     );
   }
 
   return (
-    <PrintQueueProvider>
-    <ProyectosProvider>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/nomina/*" element={<NominaFeature />} />
-          <Route path="/impresiones" element={<ImpresionesPage />} />
-          <Route path="/colas-impresion" element={<ColasImpresionPage />} />
-          <Route path="/instalaciones" element={<InstalacionesPage />} />
-          <Route path="/instalaciones/:id/materiales" element={<MaterialesRequestPage />} />
-          <Route path="/inventario" element={<InventarioPage />} />
-          <Route path="/proyectos/*" element={<ProyectosFeature />} />
-          <Route path="/proformas/*" element={<ProformasFeature />} />
-          <Route path="/clientes/*" element={<ClientesFeature />} />
-          <Route path="/proveedores/*" element={<ProveedoresFeature />} />
-          <Route path="/contactos/*" element={<ContactosFeature />} />
-          <Route path="/usuarios/*" element={<UsuariosFeature />} />
-          <Route path="/compras/*" element={<ComprasFeature />} />
-          <Route path="/ventas/*" element={<VentasFeature />} />
-          <Route path="/gastos/*" element={<GastosFeature />} />
-          {/* Redirección por defecto */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Layout>
-    </ProyectosProvider>
-    </PrintQueueProvider>
+    <>
+      <ToastContainer />
+      <ConfirmDialogContainer />
+      <PrintQueueProvider>
+      <ProyectosProvider>
+        <Layout user={user} onLogout={handleLogout}>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/nomina/*" element={<NominaFeature />} />
+            <Route path="/impresiones" element={<ImpresionesPage />} />
+            <Route path="/colas-impresion" element={<ColasImpresionPage />} />
+            <Route path="/instalaciones" element={<InstalacionesPage />} />
+            <Route path="/instalaciones/:id/materiales" element={<MaterialesRequestPage />} />
+            <Route path="/inventario" element={<InventarioPage />} />
+            <Route path="/proyectos/*" element={<ProyectosFeature />} />
+            <Route path="/proformas/*" element={<ProformasFeature />} />
+            <Route path="/clientes/*" element={<ClientesFeature />} />
+            <Route path="/proveedores/*" element={<ProveedoresFeature />} />
+            <Route path="/contactos/*" element={<ContactosFeature />} />
+            <Route path="/usuarios/*" element={<UsuariosFeature />} />
+            <Route path="/compras/*" element={<ComprasFeature />} />
+            <Route path="/ventas/*" element={<VentasFeature />} />
+            <Route path="/gastos/*" element={<GastosFeature />} />
+            {/* Redirección por defecto */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Layout>
+      </ProyectosProvider>
+      </PrintQueueProvider>
+    </>
   );
 }
 

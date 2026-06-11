@@ -55,11 +55,23 @@
 /* Navegación */
 .sidebar-nav {
   flex: 1;
-  padding: 0;
-  overflow: hidden;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 9999px;
 }
 
 /* Carrusel del sidebar */
@@ -199,15 +211,17 @@
 }
 
 .sidebar-category-title {
-  display: none;
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b; /* Slate 500 */
+  letter-spacing: 0.05em;
+  padding: 0.85rem 1.25rem 0.35rem 1.25rem;
+  text-transform: uppercase;
 }
 
 .sidebar.collapsed .sidebar-category-title {
-  opacity: 0;
-  height: 0;
-  padding: 0;
-  pointer-events: none;
-  overflow: hidden;
+  display: none;
 }
 
 .sidebar-nav ul {

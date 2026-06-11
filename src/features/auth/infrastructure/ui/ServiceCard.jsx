@@ -1,36 +1,13 @@
 import React from 'react';
+import { Palette, Printer, Wrench, Briefcase, Sparkles, Lightbulb } from 'lucide-react';
 
 const SERVICE_ICONS = {
-  palette: (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-    </svg>
-  ),
-  printer: (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-    </svg>
-  ),
-  wrench: (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-    </svg>
-  ),
-  briefcase: (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-    </svg>
-  ),
-  sparkles: (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-    </svg>
-  ),
-  lightbulb: (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-    </svg>
-  ),
+  palette: <Palette size={20} strokeWidth={2.2} />,
+  printer: <Printer size={20} strokeWidth={2.2} />,
+  wrench: <Wrench size={20} strokeWidth={2.2} />,
+  briefcase: <Briefcase size={20} strokeWidth={2.2} />,
+  sparkles: <Sparkles size={20} strokeWidth={2.2} />,
+  lightbulb: <Lightbulb size={20} strokeWidth={2.2} />,
 };
 
 export const ServiceCard = ({ index, title, description, icon, accent, tags }) => {

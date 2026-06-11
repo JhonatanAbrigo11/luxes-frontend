@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from '../../../features/navigation/infrastructure/ui/Sidebar';
 import './Layout.css';
 
-export const Layout = ({ children }) => {
+export const Layout = ({ children, user, onLogout }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -127,6 +127,8 @@ export const Layout = ({ children }) => {
         onMouseLeave={() => {
           if (!isMobile) setIsCollapsed(true);
         }}
+        user={user}
+        onLogout={onLogout}
       />
       <main className="layout-main">
         {children}
