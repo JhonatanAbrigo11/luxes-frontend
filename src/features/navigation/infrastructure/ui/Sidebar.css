@@ -61,17 +61,14 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  /* Ocultar scrollbar pero mantener funcionalidad */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE y Edge */
 }
 
+/* Ocultar scrollbar en Chrome, Safari y Opera */
 .sidebar-nav::-webkit-scrollbar {
-  width: 4px;
-}
-
-.sidebar-nav::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 9999px;
+  display: none;
 }
 
 /* Carrusel del sidebar */
@@ -680,4 +677,40 @@
   .sidebar .profile-info {
     display: flex !important;
   }
+}
+
+/* Badge count for notifications in Sidebar */
+.sidebar-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-badge-count {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background-color: #ef4444; /* Rojo vibrante */
+  color: #ffffff;
+  font-size: 0.625rem;
+  font-weight: 800;
+  min-width: 15px;
+  height: 15px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  border: 1.5px solid #f0f4f8; /* Combina con el fondo del sidebar */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  line-height: 1;
+}
+
+/* Cuando el sidebar está colapsado, el badge se acomoda mejor */
+.sidebar.collapsed .sidebar-badge-count {
+  top: -4px;
+  right: -4px;
+  border-color: #f0f4f8;
 }

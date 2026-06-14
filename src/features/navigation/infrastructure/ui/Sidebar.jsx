@@ -1,18 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { getUnreadCount } from '../../../notificaciones/application/notificationsService';
 import './Sidebar.css';
 
 export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogout }) => {
   const userName = user?.nombre || 'Usuario';
   const userRole = (user?.rol || 'visor').toUpperCase();
   const userInitial = userName.charAt(0).toUpperCase();
+  const isAdmin = userRole === 'ADMIN' || userRole === 'ADMINISTRADOR';
+  const hasAprobacionPermission = user?.permissions?.includes('aprobacion_ordenes_compra') || isAdmin;
 
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isPrintOpen, setIsPrintOpen] = useState(false);
   const [isNominaOpen, setIsNominaOpen] = useState(false);
   const [isRelacionesOpen, setIsRelacionesOpen] = useState(false);
+  const [isInventarioOpen, setIsInventarioOpen] = useState(false);
+  const [isComprasOpen, setIsComprasOpen] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = useCallback(async () => {
+    if (!user) return;
+    try {
+      const data = await getUnreadCount();
+      setUnreadCount(data.count || 0);
+    } catch (err) {
+      console.error('Error fetching unread count:', err);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchUnreadCount();
+
+    // Listen to custom notification updates (e.g. when marked as read)
+    window.addEventListener('notifications-updated', fetchUnreadCount);
+
+    // Polling count every 15 seconds
+    const interval = setInterval(fetchUnreadCount, 15000);
+
+    return () => {
+      window.removeEventListener('notifications-updated', fetchUnreadCount);
+      clearInterval(interval);
+    };
+  }, [user, fetchUnreadCount]);
 
   // Auto-open submenus based on current route
   React.useEffect(() => {
@@ -25,8 +57,14 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogou
     if (currentPath.startsWith('/clientes') || currentPath.startsWith('/proveedores') || currentPath.startsWith('/contactos')) {
       setIsRelacionesOpen(true);
     }
-    if (currentPath.startsWith('/usuarios') || currentPath.startsWith('/configuracion')) {
+    if (currentPath.startsWith('/usuarios')) {
       setIsConfigOpen(true);
+    }
+    if (currentPath.startsWith('/inventario')) {
+      setIsInventarioOpen(true);
+    }
+    if (currentPath.startsWith('/compras')) {
+      setIsComprasOpen(true);
     }
   }, [currentPath]);
 
@@ -62,6 +100,19 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogou
                 <span className="sidebar-link-text">Dashboard</span>
               </Link>
             </li>
+            <li className={currentPath === '/notificaciones' ? 'active' : ''}>
+              <Link to="/notificaciones">
+                <div className="sidebar-icon-wrapper">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="sidebar-badge-count">{unreadCount}</span>
+                  )}
+                </div>
+                <span className="sidebar-link-text">Notificaciones</span>
+              </Link>
+            </li>
           </ul>
         </div>
 
@@ -71,10 +122,36 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogou
             <li className={`sidebar-has-submenu ${isNominaOpen ? 'submenu-open' : ''} ${currentPath.startsWith('/nomina') ? 'active' : ''}`}>
               <button
                 type="button"
-                onClick={() => setIsNominaOpen(prev => !prev)}
-                className="sidebar-submenu-toggle sidebar-submenu-toggle--text-only"
+                onClick={() => {
+                  setIsNominaOpen(prev => !prev);
+                  // Contraer los demás módulos
+                  if (!isNominaOpen) {
+                    setIsPrintOpen(false);
+                    setIsRelacionesOpen(false);
+                    setIsInventarioOpen(false);
+                    setIsComprasOpen(false);
+                    setIsConfigOpen(false);
+                  }
+                }}
+                className="sidebar-submenu-toggle"
               >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
+                  <line x1="12" y1="1" x2="12" y2="23"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
                 <span className="sidebar-link-text">Nómina</span>
+                {!isCollapsed && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className={`chevron-icon submenu-chevron ${isNominaOpen ? 'rotated' : ''}`}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                )}
               </button>
 
               {!isCollapsed && isNominaOpen && (
@@ -84,7 +161,7 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogou
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                       </svg>
-                      <span className="sidebar-submenu-text">Colaboradores</span>
+                      <span className="sidebar-submenu-text">Empleados</span>
                     </Link>
                   </li>
                   <li className={currentPath === '/nomina/credenciales' ? 'submenu-active' : ''}>
@@ -145,25 +222,87 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogou
               </Link>
             </li>
 
-            <li className={currentPath.startsWith('/inventario') ? 'active' : ''}>
-              <Link to="/inventario">
+            <li className={`sidebar-has-submenu ${isInventarioOpen ? 'submenu-open' : ''} ${currentPath.startsWith('/inventario') ? 'active' : ''}`}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsInventarioOpen(prev => !prev);
+                  // Contraer los demás módulos
+                  if (!isInventarioOpen) {
+                    setIsNominaOpen(false);
+                    setIsPrintOpen(false);
+                    setIsRelacionesOpen(false);
+                    setIsComprasOpen(false);
+                    setIsConfigOpen(false);
+                  }
+                }}
+                className="sidebar-submenu-toggle"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
                 </svg>
                 <span className="sidebar-link-text">Inventario</span>
                 {!isCollapsed && (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className={`chevron-icon submenu-chevron ${isInventarioOpen ? 'rotated' : ''}`}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                   </svg>
                 )}
-              </Link>
+              </button>
+
+              {!isCollapsed && isInventarioOpen && (
+                <ul className="sidebar-submenu">
+                  <li className={currentPath === '/inventario' ? 'submenu-active' : ''}>
+                    <Link to="/inventario" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <rect x="3" y="3" width="7" height="9" rx="1" />
+                        <rect x="14" y="3" width="7" height="5" rx="1" />
+                        <rect x="14" y="12" width="7" height="9" rx="1" />
+                        <rect x="3" y="16" width="7" height="5" rx="1" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Stock de Materiales</span>
+                    </Link>
+                  </li>
+                  <li className={currentPath.startsWith('/inventario/recepcion') ? 'submenu-active' : ''}>
+                    <Link to="/inventario/recepcion" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Recepción de Insumos</span>
+                    </Link>
+                  </li>
+                  <li className={currentPath.startsWith('/inventario/prestamos') ? 'submenu-active' : ''}>
+                    <Link to="/inventario/prestamos" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L17.5 12M21 7.5H7.5" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Préstamos</span>
+                    </Link>
+                  </li>
+                </ul>
+              )}
             </li>
 
-            {/* Módulo padre: Taller de Impresión */}
             <li className={`sidebar-has-submenu ${isPrintOpen ? 'submenu-open' : ''} ${(currentPath.startsWith('/impresiones') || currentPath.startsWith('/colas-impresion')) ? 'active' : ''}`}>
               <button
                 type="button"
-                onClick={() => setIsPrintOpen(!isPrintOpen)}
+                onClick={() => {
+                  setIsPrintOpen(!isPrintOpen);
+                  // Contraer los demás módulos
+                  if (!isPrintOpen) {
+                    setIsNominaOpen(false);
+                    setIsRelacionesOpen(false);
+                    setIsInventarioOpen(false);
+                    setIsComprasOpen(false);
+                    setIsConfigOpen(false);
+                  }
+                }}
                 className="sidebar-submenu-toggle"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
@@ -220,6 +359,27 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogou
               </Link>
             </li>
 
+            <li className={currentPath.startsWith('/tareas') ? 'active' : ''}>
+              <Link to="/tareas" onClick={() => {
+                setIsNominaOpen(false);
+                setIsPrintOpen(false);
+                setIsRelacionesOpen(false);
+                setIsInventarioOpen(false);
+                setIsComprasOpen(false);
+                setIsConfigOpen(false);
+              }}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span className="sidebar-link-text">Tareas</span>
+                {!isCollapsed && (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                )}
+              </Link>
+            </li>
+
             <li className={currentPath.startsWith('/proyectos') ? 'active' : ''}>
               <Link to="/proyectos">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
@@ -248,18 +408,78 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogou
               </Link>
             </li>
 
-            <li className={currentPath.startsWith('/compras') ? 'active' : ''}>
-              <Link to="/compras">
+            <li className={`sidebar-has-submenu ${isComprasOpen ? 'submenu-open' : ''} ${currentPath.startsWith('/compras') ? 'active' : ''}`}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsComprasOpen(prev => !prev);
+                  // Contraer los demás módulos
+                  if (!isComprasOpen) {
+                    setIsNominaOpen(false);
+                    setIsPrintOpen(false);
+                    setIsRelacionesOpen(false);
+                    setIsInventarioOpen(false);
+                    setIsConfigOpen(false);
+                  }
+                }}
+                className="sidebar-submenu-toggle"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12a1.125 1.125 0 0 1 1.263-1.123h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0z" />
                 </svg>
                 <span className="sidebar-link-text">Compras</span>
                 {!isCollapsed && (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="chevron-icon">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className={`chevron-icon submenu-chevron ${isComprasOpen ? 'rotated' : ''}`}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                   </svg>
                 )}
-              </Link>
+              </button>
+
+              {!isCollapsed && isComprasOpen && (
+                <ul className="sidebar-submenu">
+                  <li className={currentPath === '/compras' ? 'submenu-active' : ''}>
+                    <Link to="/compras" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Órdenes de Compra</span>
+                    </Link>
+                  </li>
+                  {hasAprobacionPermission && (
+                    <li className={currentPath === '/compras/aprobaciones' ? 'submenu-active' : ''}>
+                      <Link to="/compras/aprobaciones" className="sidebar-submenu-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                        </svg>
+                        <span className="sidebar-submenu-text">Aprobaciones</span>
+                      </Link>
+                    </li>
+                  )}
+                  <li className={currentPath === '/compras/cuentas-por-pagar' ? 'submenu-active' : ''}>
+                    <Link to="/compras/cuentas-por-pagar" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-6.75 3h16.5a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5H4.5a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Cuentas por Pagar</span>
+                    </Link>
+                  </li>
+                  <li className={currentPath === '/compras/metodos-pago' ? 'submenu-active' : ''}>
+                    <Link to="/compras/metodos-pago" className="sidebar-submenu-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+                      <span className="sidebar-submenu-text">Métodos de Pago</span>
+                    </Link>
+                  </li>
+                </ul>
+              )}
             </li>
 
             <li className={currentPath.startsWith('/ventas') ? 'active' : ''}>
@@ -280,7 +500,17 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogou
             <li className={`sidebar-has-submenu ${isRelacionesOpen ? 'submenu-open' : ''}`}>
               <button
                 type="button"
-                onClick={() => setIsRelacionesOpen(!isRelacionesOpen)}
+                onClick={() => {
+                  setIsRelacionesOpen(!isRelacionesOpen);
+                  // Contraer los demás módulos
+                  if (!isRelacionesOpen) {
+                    setIsNominaOpen(false);
+                    setIsPrintOpen(false);
+                    setIsInventarioOpen(false);
+                    setIsComprasOpen(false);
+                    setIsConfigOpen(false);
+                  }
+                }}
                 className="sidebar-submenu-toggle"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
@@ -341,7 +571,17 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogou
             <li className={`sidebar-has-submenu ${isConfigOpen ? 'submenu-open' : ''}`}>
               <button 
                 type="button"
-                onClick={() => setIsConfigOpen(!isConfigOpen)}
+                onClick={() => {
+                  setIsConfigOpen(!isConfigOpen);
+                  // Contraer los demás módulos
+                  if (!isConfigOpen) {
+                    setIsNominaOpen(false);
+                    setIsPrintOpen(false);
+                    setIsRelacionesOpen(false);
+                    setIsInventarioOpen(false);
+                    setIsComprasOpen(false);
+                  }
+                }}
                 className="sidebar-submenu-toggle"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-icon">
@@ -372,14 +612,6 @@ export const Sidebar = ({ isCollapsed, onMouseEnter, onMouseLeave, user, onLogou
                         <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
                       </svg>
                       <span className="sidebar-submenu-text">Usuarios</span>
-                    </Link>
-                  </li>
-                  <li className={currentPath.startsWith('/configuracion/landing') ? 'submenu-active' : ''}>
-                    <Link to="/configuracion/landing" className="sidebar-submenu-link">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="sidebar-submenu-icon">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
-                      </svg>
-                      <span className="sidebar-submenu-text">Landing page</span>
                     </Link>
                   </li>
                 </ul>
