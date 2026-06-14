@@ -1,0 +1,22 @@
+{
+  "name": "Luxes - Sistema de Gestión",
+  "short_name": "Luxes",
+  "description": "Sistema de gestión interna de Luxes, incluyendo nómina, inventario y compras.",
+  "start_url": "/?source=pwa",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/LogoGlobo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/LogoGlobo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

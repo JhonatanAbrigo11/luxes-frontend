@@ -1,7 +1,8 @@
 // src/shared/ui/components/PDFPreviewModal.jsx
 
 import React, { useState } from 'react';
-import { Printer, X, ZoomIn, ZoomOut, FileText } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Printer, X, ZoomIn, ZoomOut, FileText, Download } from 'lucide-react';
 import './PDFPreviewModal.css';
 
 /**
@@ -19,6 +20,14 @@ export function PDFPreviewModal({ isOpen, onClose, oc, proyecto, title = 'Orden 
 
   if (!isOpen || !oc) return null;
 
+  const handleDownload = () => {
+    const originalTitle = document.title;
+    // Set a clean document title so the browser uses it as the suggested PDF filename
+    document.title = `Orden_de_Compra_${oc.id || 'Borrador'}`;
+    window.print();
+    document.title = originalTitle;
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -28,7 +37,7 @@ export function PDFPreviewModal({ isOpen, onClose, oc, proyecto, title = 'Orden 
     0
   ) || 0;
 
-  return (
+  return createPortal(
     <div className="pdf-modal-overlay" onClick={onClose}>
       <div className="pdf-modal-container" onClick={(e) => e.stopPropagation()}>
         {/* PDF Toolbar Chrome */}
@@ -58,9 +67,13 @@ export function PDFPreviewModal({ isOpen, onClose, oc, proyecto, title = 'Orden 
 
           <div className="pdf-toolbar-right">
             <span className="pdf-page-indicator">Pág. 1 de 1</span>
-            <button onClick={handlePrint} className="pdf-print-btn">
-              <Printer size={15} />
-              Imprimir / Guardar PDF
+            <button onClick={handleDownload} className="pdf-download-btn" title="Guardar / Descargar PDF">
+              <Download size={14} />
+              Descargar PDF
+            </button>
+            <button onClick={handlePrint} className="pdf-print-btn" title="Imprimir documento">
+              <Printer size={14} />
+              Imprimir
             </button>
             <button onClick={onClose} className="pdf-close-btn" title="Cerrar">
               <X size={18} />
@@ -190,6 +203,7 @@ export function PDFPreviewModal({ isOpen, onClose, oc, proyecto, title = 'Orden 
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

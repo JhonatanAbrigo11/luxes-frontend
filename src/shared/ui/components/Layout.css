@@ -1,7 +1,7 @@
 .layout-container {
   display: flex;
   min-height: 100vh;
-  --sidebar-width: 250px;
+  --sidebar-width: 280px; /* Aumentado de 250px a 280px */
   overflow-x: hidden;
   width: 100%;
   max-width: 100%;
