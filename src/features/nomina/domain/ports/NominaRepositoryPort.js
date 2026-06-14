@@ -50,6 +50,6 @@ export class NominaRepositoryPort {
    * @returns {Promise<Array<import('../entities/HoraExtra').HoraExtra>>}
    */
   async saveOvertime(horasExtras) {
-    throw new Error("Método 'saveOvertime' no implementado.");
+    throw new Error("Método 'saveOvertime' requiere fechaInicio y fechaFin. Use la firma extendida del adaptador API.");
   }
 }

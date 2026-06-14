@@ -13,12 +13,12 @@ export const NominaEmpleadosPage = () => {
       <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wider">
         <button onClick={() => navigate('/nomina')} className="hover:text-blue-700 font-bold transition-all">Nómina</button>
         <span>/</span>
-        <span className="font-semibold text-gray-800">Empleados</span>
+        <span className="font-semibold text-gray-800">Colaboradores</span>
       </div>
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-blue-900 tracking-tight">Empleados</h1>
+          <h1 className="text-2xl font-extrabold text-blue-900 tracking-tight">Colaboradores</h1>
           <p className="text-gray-500 text-sm mt-1">Colaboradores registrados en el sistema de nómina.</p>
         </div>
       </div>
@@ -60,7 +60,7 @@ export const NominaEmpleadosPage = () => {
               ))}
               {employees.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-sm text-gray-400">No hay empleados registrados</td>
+                  <td colSpan={6} className="text-center py-12 text-sm text-gray-400">No hay colaboradores registrados</td>
                 </tr>
               )}
             </tbody>

@@ -62,7 +62,7 @@ export const NominaDelMesPage = () => {
       <div className="bg-white border border-slate-200 rounded-xl px-5 py-4 flex items-center justify-between gap-4 flex-wrap mb-6">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Nómina del Mes</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Gestión de pagos mensuales a empleados</p>
+          <p className="text-sm text-slate-500 mt-0.5">Gestión de pagos mensuales a colaboradores</p>
         </div>
         <div className="flex items-center gap-3">
           <select value={mes} onChange={e => setMes(Number(e.target.value))}
@@ -85,7 +85,7 @@ export const NominaDelMesPage = () => {
             </svg>
           </div>
           <div>
-            <div className="text-xs text-slate-500 font-medium">Empleados</div>
+            <div className="text-xs text-slate-500 font-medium">Colaboradores</div>
             <div className="text-xl font-bold text-slate-800">{empleados.length}</div>
           </div>
         </div>
@@ -200,7 +200,7 @@ export const NominaDelMesPage = () => {
                   </tr>
                 ))}
                 {rows.length === 0 && (
-                  <tr><td colSpan={6} className="text-center py-16 text-slate-400 text-sm">No hay empleados registrados</td></tr>
+                  <tr><td colSpan={6} className="text-center py-16 text-slate-400 text-sm">No hay colaboradores registrados</td></tr>
                 )}
               </tbody>
             </table>
@@ -209,7 +209,7 @@ export const NominaDelMesPage = () => {
 
         {rows.length > 0 && (
           <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100 bg-slate-50/30">
-            <span className="text-sm text-slate-500 font-medium">{empleados.length} empleados</span>
+            <span className="text-sm text-slate-500 font-medium">{empleados.length} colaboradores</span>
             <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
               <span>Total: {fmt(totalNomina)}</span>
               <span className="text-slate-300">|</span>

@@ -10,7 +10,7 @@ export const RolDePagoPage = () => {
   const navigate = useNavigate();
   const { employees, calculatedPayrolls, activePeriod, loadData, setSelectedEmployee } = useNomina();
 
-  const id = Number(empleadoId);
+  const id = empleadoId;
 
   // Cargar datos si el estado está vacío al recargar la página directamente
   useEffect(() => {
@@ -31,12 +31,12 @@ export const RolDePagoPage = () => {
 
   // Buscar el colaborador
   const empleado = useMemo(() => {
-    return employees.find(e => e.id === id) || null;
+    return employees.find(e => String(e.id) === String(id)) || null;
   }, [employees, id]);
 
   // Buscar la nómina calculada
   const calculatedPayroll = useMemo(() => {
-    return calculatedPayrolls.find(p => p.empleadoId === id) || null;
+    return calculatedPayrolls.find(p => String(p.empleadoId) === String(id)) || null;
   }, [calculatedPayrolls, id]);
 
   if (!empleado || !calculatedPayroll) {

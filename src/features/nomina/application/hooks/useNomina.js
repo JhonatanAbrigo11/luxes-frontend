@@ -131,10 +131,10 @@ export function useNomina() {
     if (!adapter) return;
     try {
       horasExtras.forEach(he => he.validate());
-      const saved = await adapter.saveOvertime(horasExtras);
+      const { fechaInicio, fechaFin } = fechasActuales;
+      const saved = await adapter.saveOvertime(horasExtras, fechaInicio, fechaFin);
       
       // Volver a cargar horas extras para mantener sincronía
-      const { fechaInicio, fechaFin } = fechasActuales;
       const updatedOvertime = await adapter.getOvertime(fechaInicio, fechaFin);
       dispatch({ type: NOMINA_ACTIONS.SET_OVERTIME, payload: updatedOvertime });
       return saved;

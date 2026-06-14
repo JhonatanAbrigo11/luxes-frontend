@@ -137,7 +137,7 @@ export class NominaMockAdapter extends NominaRepositoryPort {
    * @param {Array<HoraExtra>} horasExtras
    * @returns {Promise<Array<HoraExtra>>}
    */
-  async saveOvertime(horasExtras) {
+  async saveOvertime(horasExtras, fechaInicio, fechaFin) {
     // Reemplazamos/insertamos los registros que correspondan
     horasExtras.forEach(newHe => {
       const idx = dbOvertime.findIndex(item => item.id === newHe.id);

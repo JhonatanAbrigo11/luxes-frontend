@@ -13,129 +13,110 @@ const LOGO_PALETTE = [
   '#1565C0',
 ];
 
-const MAX_PARTICLES = 120;
-const SPAWN_INTERVAL_MS = 28;
+const MAX_TRAIL_POINTS = 90;
+const MIN_POINT_DISTANCE = 10;
+const POINT_RADIUS = 4;
+const LINE_WIDTH = 2.5;
+const LIFE_DECAY = 0.018;
 
-const randomFrom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const nextColor = (index) => LOGO_PALETTE[index % LOGO_PALETTE.length];
 
-const drawRoundedRect = (ctx, x, y, w, h, r) => {
-  if (typeof ctx.roundRect === 'function') {
-    ctx.beginPath();
-    ctx.roundRect(x, y, w, h, r);
-    return;
-  }
-
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-};
-
-const createParticle = (x, y) => {
-  const angle = Math.random() * Math.PI * 2;
-  const speed = 0.6 + Math.random() * 2.4;
-  const color = randomFrom(LOGO_PALETTE);
-
-  return {
-    x,
-    y,
-    vx: Math.cos(angle) * speed,
-    vy: Math.sin(angle) * speed - 0.4,
-    width: 3 + Math.random() * 5,
-    height: 10 + Math.random() * 16,
-    rotation: (Math.random() - 0.5) * 0.8,
-    rotationSpeed: (Math.random() - 0.5) * 0.06,
-    color,
-    life: 1,
-    decay: 0.012 + Math.random() * 0.018,
-    drag: 0.96 + Math.random() * 0.02,
-  };
-};
+const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
 export const LogoColorTrail = () => {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
-  const particlesRef = useRef([]);
-  const mouseRef = useRef({ x: -100, y: -100, active: false });
+  const trailRef = useRef([]);
+  const colorIndexRef = useRef(0);
   const frameRef = useRef(null);
-  const lastSpawnRef = useRef(0);
   const reducedMotionRef = useRef(false);
 
-  const drawParticle = useCallback((ctx, p) => {
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.rotation);
-    ctx.globalAlpha = p.life * 0.85;
+  const drawTrail = useCallback((ctx, trail) => {
+    if (trail.length < 2) {
+      if (trail.length === 1) {
+        const p = trail[0];
+        ctx.save();
+        ctx.globalAlpha = p.life * 0.9;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, POINT_RADIUS * p.life, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      return;
+    }
 
-    const gradient = ctx.createLinearGradient(0, -p.height / 2, 0, p.height / 2);
-    gradient.addColorStop(0, p.color);
-    gradient.addColorStop(0.5, p.color);
-    gradient.addColorStop(1, `${p.color}88`);
+    for (let i = 0; i < trail.length - 1; i += 1) {
+      const a = trail[i];
+      const b = trail[i + 1];
+      const alpha = Math.min(a.life, b.life) * 0.75;
 
-    ctx.fillStyle = gradient;
-    const r = p.width / 2;
-    drawRoundedRect(ctx, -p.width / 2, -p.height / 2, p.width, p.height, r);
-    ctx.fill();
+      if (alpha <= 0.02) continue;
 
-    ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = a.color;
+      ctx.lineWidth = LINE_WIDTH * Math.min(a.life, b.life);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    trail.forEach((p) => {
+      if (p.life <= 0.02) return;
+
+      ctx.save();
+      ctx.globalAlpha = p.life * 0.95;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, POINT_RADIUS * (0.55 + p.life * 0.45), 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = p.life * 0.35;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(p.x - 0.6, p.y - 0.6, POINT_RADIUS * 0.25 * p.life, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
   }, []);
 
-  const tick = useCallback((timestamp) => {
+  const addTrailPoint = useCallback((x, y) => {
+    const trail = trailRef.current;
+    const last = trail[trail.length - 1];
+
+    if (last && distance(last, { x, y }) < MIN_POINT_DISTANCE) return;
+
+    const color = nextColor(colorIndexRef.current);
+    colorIndexRef.current += 1;
+
+    trail.push({ x, y, color, life: 1 });
+
+    if (trail.length > MAX_TRAIL_POINTS) trail.shift();
+  }, []);
+
+  const tick = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     const { width, height } = canvas;
-    const mouse = mouseRef.current;
-    const particles = particlesRef.current;
+    const trail = trailRef.current;
 
-    if (
-      mouse.active
-      && !reducedMotionRef.current
-      && timestamp - lastSpawnRef.current > SPAWN_INTERVAL_MS
-    ) {
-      const burst = 2 + Math.floor(Math.random() * 3);
-      for (let i = 0; i < burst; i += 1) {
-        if (particles.length >= MAX_PARTICLES) particles.shift();
-        particles.push(
-          createParticle(
-            mouse.x + (Math.random() - 0.5) * 10,
-            mouse.y + (Math.random() - 0.5) * 10,
-          ),
-        );
-      }
-      lastSpawnRef.current = timestamp;
+    for (let i = trail.length - 1; i >= 0; i -= 1) {
+      trail[i].life -= LIFE_DECAY;
+      if (trail[i].life <= 0) trail.splice(i, 1);
     }
 
     ctx.clearRect(0, 0, width, height);
-
-    for (let i = particles.length - 1; i >= 0; i -= 1) {
-      const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vx *= p.drag;
-      p.vy *= p.drag;
-      p.vy += 0.02;
-      p.rotation += p.rotationSpeed;
-      p.life -= p.decay;
-
-      if (p.life <= 0) {
-        particles.splice(i, 1);
-        continue;
-      }
-
-      drawParticle(ctx, p);
-    }
+    drawTrail(ctx, trail);
 
     frameRef.current = requestAnimationFrame(tick);
-  }, [drawParticle]);
+  }, [drawTrail]);
 
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -166,21 +147,20 @@ export const LogoColorTrail = () => {
 
     const handleMotionChange = (e) => {
       reducedMotionRef.current = e.matches;
-      if (e.matches) particlesRef.current = [];
+      if (e.matches) trailRef.current = [];
     };
     prefersReduced.addEventListener('change', handleMotionChange);
 
     const handleMouseMove = (e) => {
+      if (reducedMotionRef.current) return;
+
       const rect = wrap.getBoundingClientRect();
-      mouseRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-        active: true,
-      };
+      addTrailPoint(e.clientX - rect.left, e.clientY - rect.top);
     };
 
     const handleMouseLeave = () => {
-      mouseRef.current.active = false;
+      trailRef.current = [];
+      colorIndexRef.current = 0;
     };
 
     resizeCanvas();
@@ -197,7 +177,7 @@ export const LogoColorTrail = () => {
       window.removeEventListener('resize', resizeCanvas);
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
-  }, [resizeCanvas, tick]);
+  }, [resizeCanvas, tick, addTrailPoint]);
 
   return (
     <div ref={containerRef} className="logo-color-trail-wrap" aria-hidden="true">

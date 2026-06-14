@@ -48,7 +48,7 @@ export const CredencialesPage = () => {
       <div className="bg-white border border-slate-200 rounded-xl px-5 py-4 flex items-center justify-between gap-4 flex-wrap mb-6">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Credenciales</h1>
-          <p className="text-sm text-slate-500">Carnets de empleados con código QR para imprimir.</p>
+          <p className="text-sm text-slate-500">Carnets de colaboradores con código QR para imprimir.</p>
         </div>
         <div className="relative">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -89,7 +89,7 @@ export const CredencialesPage = () => {
             emp.cargo?.toLowerCase().includes(search.toLowerCase()) ||
             emp.id?.toLowerCase().includes(search.toLowerCase())
           ).length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-12">{search ? 'No se encontraron empleados con ese nombre' : 'No hay empleados registrados'}</p>
+            <p className="text-sm text-gray-400 text-center py-12">{search ? 'No se encontraron colaboradores con ese nombre' : 'No hay colaboradores registrados'}</p>
           )}
         </div>
       )}

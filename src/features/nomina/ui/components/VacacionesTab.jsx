@@ -1,18 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getEmpleados } from '../../../empleados/application/empleadosService';
+import { getVacaciones, saveVacacion } from '../../application/vacacionesService';
 import { DIAS_VACACIONES_POR_ANO } from '../../infrastructure/mock/vacacionesData';
-
-const STORAGE_KEY = 'luxes_vacaciones';
-
-function loadVacaciones() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch { return []; }
-}
-
-function saveVacaciones(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const MESES_NOMBRES = [
@@ -171,15 +160,20 @@ export const VacacionesTab = () => {
 
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
       try {
-        const data = await getEmpleados();
-        setEmpleados(data);
-      } catch { setEmpleados([]); }
-      setVacaciones(loadVacaciones());
-      setLoading(false);
+        const [emps, vacs] = await Promise.all([getEmpleados(), getVacaciones(año)]);
+        setEmpleados(emps);
+        setVacaciones(vacs);
+      } catch {
+        setEmpleados([]);
+        setVacaciones([]);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
-  }, []);
+  }, [año]);
 
   const [mesInicio, setMesInicio] = useState(0);
   const mesesVisibles = 3;
@@ -203,19 +197,23 @@ export const VacacionesTab = () => {
     [vacaciones, año]
   );
 
-  const handleToggleDia = (empleadoId, year, month, dia) => {
+  const handleToggleDia = async (empleadoId, year, month, dia) => {
     const fechaStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-    setVacaciones(prev => {
-      let next = [...prev];
-      const idx = next.findIndex(v => v.empleadoId === empleadoId && v.año === año);
-      if (idx === -1) {
-        next.push({ empleadoId, año, diasTomados: [fechaStr] });
-      } else {
-        next[idx] = { ...next[idx], diasTomados: toggleFecha(next[idx].diasTomados, fechaStr) };
-      }
-      saveVacaciones(next);
-      return next;
-    });
+    const current = vacaciones.find((v) => v.empleadoId === empleadoId && v.año === year);
+    const diasTomados = toggleFecha(current?.diasTomados ?? [], fechaStr);
+
+    try {
+      const saved = await saveVacacion({ empleadoId, año: year, diasTomados });
+      setVacaciones((prev) => {
+        const idx = prev.findIndex((v) => v.empleadoId === empleadoId && v.año === year);
+        if (idx === -1) return [...prev, saved];
+        const next = [...prev];
+        next[idx] = saved;
+        return next;
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const avanzarMeses = () => setMesInicio(m => (m + mesesVisibles) % 12);

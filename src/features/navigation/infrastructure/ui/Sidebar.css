@@ -347,6 +347,10 @@
   background: none;
 }
 
+.sidebar-submenu-toggle--text-only {
+  gap: 0;
+}
+
 .sidebar-submenu-toggle:hover {
   color: #0f172a;
   background-color: #e8eef5;

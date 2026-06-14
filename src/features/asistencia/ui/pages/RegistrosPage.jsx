@@ -43,33 +43,6 @@ const calcTotalHours = (marks) => {
   return `${Math.floor(ms/3600000)}h ${String(Math.floor((ms%3600000)/60000)).padStart(2,'0')}m`;
 };
 
-/* ─── Seed mock data ────────────────────────────────────────────────────────── */
-function seedMockData() {
-  localStorage.removeItem('asistencias_mock');
-  const hoy = new Date();
-  const empleados = JSON.parse(localStorage.getItem('luxes_empleados') || '[]');
-  if (!empleados.length) return;
-  const data = [];
-  const pushMarcacion = (empId, empName, tipo, fecha, hora, min) => {
-    const d = new Date(fecha); d.setHours(hora, min, 0, 0);
-    data.push({ id: crypto.randomUUID(), empleadoId: empId, nombreEmpleado: empName, tipo, label: tipo, fechaHora: d.toISOString(), ubicacion: {lat:-2.19616,lng:-79.88621} });
-  };
-  for (let d = -14; d <= 0; d++) {
-    const dia = new Date(hoy); dia.setDate(dia.getDate() + d);
-    if (dia.getDay() === 0 || dia.getDay() === 6) continue; // skip weekends
-    const fechaStr = toISODate(dia);
-    empleados.forEach((emp, idx) => {
-      const skip = idx === 2 && d === -3; // EMP-003 misses a day
-      const partial = idx === 4 && (d === -5 || d === -2); // EMP-005 partial days
-      pushMarcacion(emp.id, emp.nombre, 'ENTRADA', fechaStr, d === 0 ? 8 : 7 + Math.floor(Math.random()*2), Math.floor(Math.random()*30));
-      if (!partial) pushMarcacion(emp.id, emp.nombre, 'INICIO_ALMUERZO', fechaStr, 12, Math.floor(Math.random()*15));
-      if (!partial) pushMarcacion(emp.id, emp.nombre, 'FIN_ALMUERZO', fechaStr, 13, Math.floor(Math.random()*10));
-      if (!skip && !partial) pushMarcacion(emp.id, emp.nombre, 'SALIDA', fechaStr, 17, Math.floor(Math.random()*30));
-    });
-  }
-  localStorage.setItem('asistencias_mock', JSON.stringify(data));
-}
-
 /* ─── Componente ────────────────────────────────────────────────────────────── */
 export const RegistrosPage = () => {
   const today = new Date();
@@ -113,7 +86,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
     html += '<tr><td colspan="8" style="height:6px;border:none"></td></tr>';
 
     if (vista === 'dia') {
-      html += '<tr><th>Empleado</th><th>ID</th><th>Entrada</th><th>Inicio Almuerzo</th><th>Fin Almuerzo</th><th>Salida</th><th>Marc.</th><th>Horas</th></tr>';
+      html += '<tr><th>Colaborador</th><th>ID</th><th>Entrada</th><th>Inicio Almuerzo</th><th>Fin Almuerzo</th><th>Salida</th><th>Marc.</th><th>Horas</th></tr>';
       empleadosFiltrados.forEach(emp => {
         const marks = asistenciasFiltradas.filter(a => a.empleadoId === emp.id);
         const e = marks.find(a=>a.tipo==='ENTRADA'); const ia = marks.find(a=>a.tipo==='INICIO_ALMUERZO');
@@ -123,7 +96,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
         html += `<tr>${cell(emp.nombre,'nombre')}${cell(emp.id)}${cell(e?formatTime(e.fechaHora):'')}${cell(ia?formatTime(ia.fechaHora):'')}${cell(fa?formatTime(fa.fechaHora):'')}${cell(s?formatTime(s.fechaHora):'')}${cell(marks.length+'/4',cls)}${cell(total)}</tr>`;
       });
     } else if (vista === 'semana') {
-      html += '<tr><th>Empleado</th><th>ID</th>';
+      html += '<tr><th>Colaborador</th><th>ID</th>';
       diasSemana.forEach((d,i) => { html += `<th>${DIAS_LABEL[i]}<br><span style="font-weight:normal;font-size:8pt">${d.getDate()}</span></th>`; });
       html += '</tr>';
       empleadosFiltrados.forEach(emp => {
@@ -137,7 +110,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
         html += r + '</tr>';
       });
     } else {
-      html += '<tr><th>Empleado</th><th>ID</th>';
+      html += '<tr><th>Colaborador</th><th>ID</th>';
       diasMes.forEach(d => { html += `<th style="font-size:8pt">${d.getDate()}</th>`; });
       html += '</tr>';
       empleadosFiltrados.forEach(emp => {
@@ -168,10 +141,8 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
       setLoading(true);
       try {
         const [data, emps] = await Promise.all([getAsistencias(), getEmpleados()]);
-        if (data.length === 0 && emps.length > 0) seedMockData();
-        const freshData = data.length === 0 && emps.length > 0 ? await getAsistencias() : data;
-        freshData.sort((a,b) => new Date(b.fechaHora)-new Date(a.fechaHora));
-        setAsistencias(freshData); setEmpleados(emps);
+        data.sort((a,b) => new Date(b.fechaHora)-new Date(a.fechaHora));
+        setAsistencias(data); setEmpleados(emps);
       } catch (err) { console.error(err); } finally { setLoading(false); }
     };
     fetch();
@@ -355,7 +326,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
             })}
           </div>
           <div className="hidden lg:grid grid-cols-12 gap-3 px-5 py-2.5 bg-gray-50 border-b border-gray-100">
-            <div className="col-span-3 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Empleado</div>
+            <div className="col-span-3 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Colaborador</div>
             <div className="col-span-5 text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center">Marcaciones del día</div>
             <div className="col-span-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-right">Estado</div>
           </div>
@@ -363,7 +334,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
             {rows.map(r => renderFilaEmpleado(r.emp, r.marcaciones))}
           </div>
           <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50">
-            <span className="text-xs font-medium text-gray-400">{empleadosFiltrados.length} empleado{empleadosFiltrados.length!==1?'s':''}</span>
+            <span className="text-xs font-medium text-gray-400">{empleadosFiltrados.length} colaborador{empleadosFiltrados.length!==1?'es':''}</span>
           </div>
         </div>
       </>
@@ -397,7 +368,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
             <table className="min-w-full text-[10px] border-collapse">
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-10 bg-blue-900 text-white font-bold px-4 py-2.5 min-w-[160px] text-left uppercase tracking-wider border-r border-blue-700">Empleado</th>
+                  <th className="sticky left-0 z-10 bg-blue-900 text-white font-bold px-4 py-2.5 min-w-[160px] text-left uppercase tracking-wider border-r border-blue-700">Colaborador</th>
                   {diasSemana.map((d,i) => {
                     const st=statusDia(d);
                     return (<th key={i}
@@ -446,7 +417,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
             </div>}
           </div>
           <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50">
-            <span className="text-xs font-medium text-gray-400">{empleadosFiltrados.length} empleados</span>
+            <span className="text-xs font-medium text-gray-400">{empleadosFiltrados.length} colaboradores</span>
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Entrada</span>
               <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-2 h-2 rounded-full bg-amber-500" /> Almuerzo</span>
@@ -482,7 +453,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
             <table className="min-w-full text-[10px] border-collapse">
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-10 bg-blue-900 text-white font-bold px-4 py-2.5 min-w-[160px] text-left uppercase tracking-wider border-r border-blue-700">Empleado</th>
+                  <th className="sticky left-0 z-10 bg-blue-900 text-white font-bold px-4 py-2.5 min-w-[160px] text-left uppercase tracking-wider border-r border-blue-700">Colaborador</th>
                   {diasMes.map((d,i) => {
                     const st=statusDia(d);
                     const esFinde=d.getDay()===0||d.getDay()===6;
@@ -524,7 +495,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
             </table>
           </div>
           <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50">
-            <span className="text-xs font-medium text-gray-400">{empleadosFiltrados.length} empleados · {diasMes.length} días</span>
+            <span className="text-xs font-medium text-gray-400">{empleadosFiltrados.length} colaboradores · {diasMes.length} días</span>
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Entrada</span>
               <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-2 h-2 rounded-full bg-amber-500" /> Almuerzo</span>
@@ -583,7 +554,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
       {/* ── KPIs ───────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Empleados activos', value: kpis.total, cssClass: 'total', color: 'text-blue-600' },
+          { label: 'Colaboradores activos', value: kpis.total, cssClass: 'total', color: 'text-blue-600' },
           { label: 'Jornadas completas (4/4)', value: kpis.completados, cssClass: 'completados', color: 'text-emerald-600' },
           { label: 'Jornadas parciales', value: kpis.parciales, cssClass: 'parciales', color: 'text-amber-600' },
           { label: 'Sin registro', value: kpis.sinRegistro, cssClass: 'sin-registro', color: 'text-slate-500' },
@@ -600,7 +571,7 @@ th{background:#d6e4f0;font-weight:bold;padding:4px 8px;font-size:10pt;font-famil
         <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
         </svg>
-        <input type="text" placeholder="Buscar empleado por nombre, ID o cargo..."
+        <input type="text" placeholder="Buscar colaborador por nombre, ID o cargo..."
           value={busqueda} onChange={e=>setBusqueda(e.target.value)}
           className="w-full max-w-md border border-gray-200 bg-white rounded-xl pl-9 pr-4 py-2.5 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all placeholder:text-gray-400 shadow-sm" />
         {busqueda && (

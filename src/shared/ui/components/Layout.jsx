@@ -14,7 +14,7 @@ export const Layout = ({ children, user, onLogout }) => {
 
   const modules = [
     { name: 'Dashboard / Inicio', path: '/' },
-    { name: 'Nómina: Empleados', path: '/nomina/empleados' },
+    { name: 'Nómina: Colaboradores', path: '/nomina/empleados' },
     { name: 'Nómina: Credenciales', path: '/nomina/credenciales' },
     { name: 'Nómina: Registro Asistencia', path: '/nomina/registro-asistencia' },
     { name: 'Nómina: Horas Extras', path: '/nomina/horas-extras' },
@@ -33,6 +33,7 @@ export const Layout = ({ children, user, onLogout }) => {
     { name: 'Relaciones: Proveedores', path: '/proveedores' },
     { name: 'Relaciones: Contactos', path: '/contactos' },
     { name: 'Configuración: Usuarios', path: '/usuarios' },
+    { name: 'Configuración: Landing page', path: '/configuracion/landing' },
   ];
 
   const filteredModules = searchQuery.trim() === ''

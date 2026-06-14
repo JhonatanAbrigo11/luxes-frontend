@@ -1,68 +1,43 @@
-import { SECUENCIA_MARCACIONES } from '../helpers/asistenciaHelpers';
-
-export const getAsistencias = async () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const data = localStorage.getItem('asistencias_mock');
-      resolve(data ? JSON.parse(data) : []);
-    }, 500);
-  });
+const getHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    Authorization: token ? `Bearer ${token}` : '',
+  };
 };
 
-/**
- * Devuelve la próxima marcación pendiente del empleado en el día actual.
- * null si ya completó las 4 marcaciones.
- */
+const parseResponse = async (response) => {
+  const data = await response.json();
+  if (!response.ok || !data.success) {
+    throw new Error(data.error?.message || 'Error en la operación');
+  }
+  return data.data;
+};
+
+export const getAsistencias = async (filters = {}) => {
+  const params = new URLSearchParams();
+  if (filters.fechaInicio) params.set('fechaInicio', filters.fechaInicio);
+  if (filters.fechaFin) params.set('fechaFin', filters.fechaFin);
+  if (filters.empleadoId) params.set('empleadoId', filters.empleadoId);
+
+  const query = params.toString();
+  return parseResponse(
+    await fetch(`/api/nomina/asistencias${query ? `?${query}` : ''}`, { headers: getHeaders() })
+  );
+};
+
 export const getProximaMarcacion = async (empleadoId) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const data = localStorage.getItem('asistencias_mock');
-      const asistencias = data ? JSON.parse(data) : [];
-      const hoy = new Date().toISOString().split('T')[0];
-
-      const registrosHoy = asistencias.filter(a => {
-        return a.empleadoId === empleadoId &&
-          new Date(a.fechaHora).toISOString().split('T')[0] === hoy;
-      });
-
-      const siguiente = SECUENCIA_MARCACIONES[registrosHoy.length] ?? null;
-      resolve(siguiente);
-    }, 200);
-  });
+  return parseResponse(
+    await fetch(`/api/nomina/asistencias/proxima-marcacion/${empleadoId}`, { headers: getHeaders() })
+  );
 };
 
 export const registrarAsistencia = async ({ empleadoId, ubicacion }) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const data = localStorage.getItem('asistencias_mock');
-      const asistencias = data ? JSON.parse(data) : [];
-      const hoy = new Date().toISOString().split('T')[0];
-
-      const registrosHoy = asistencias.filter(a => {
-        return a.empleadoId === empleadoId &&
-          new Date(a.fechaHora).toISOString().split('T')[0] === hoy;
-      });
-
-      const siguiente = SECUENCIA_MARCACIONES[registrosHoy.length];
-
-      if (!siguiente) {
-        return reject(new Error(`El empleado ${empleadoId} ya completó las 4 marcaciones del día.`));
-      }
-
-      const nuevaAsistencia = {
-        id: crypto.randomUUID(),
-        empleadoId,
-        nombreEmpleado: empleadoId,
-        tipo: siguiente.tipo,
-        label: siguiente.label,
-        fechaHora: new Date().toISOString(),
-        ubicacion,
-      };
-
-      asistencias.push(nuevaAsistencia);
-      localStorage.setItem('asistencias_mock', JSON.stringify(asistencias));
-
-      resolve(nuevaAsistencia);
-    }, 500);
-  });
+  return parseResponse(
+    await fetch('/api/nomina/asistencias', {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ empleadoId, ubicacion }),
+    })
+  );
 };

@@ -297,7 +297,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <p className="text-2xl font-bold text-slate-800">{empleados.length}</p>
-            <p className="text-xs text-slate-500">Empleados</p>
+            <p className="text-xs text-slate-500">Colaboradores</p>
             <p className="text-[10px] text-slate-400 mt-0.5">Registrados en nómina</p>
           </div>
         </div>

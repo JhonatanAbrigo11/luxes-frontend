@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import headerBg from '../../../assets/header-bg.png';
 import './ConfirmModal.css';
+
+const MODAL_HEADER_STYLE = {
+  backgroundColor: '#02188E',
+  backgroundImage: `linear-gradient(90deg, rgba(1, 12, 72, 0.55) 0%, rgba(4, 51, 255, 0.25) 50%, rgba(1, 12, 72, 0.55) 100%), url(${headerBg})`,
+  backgroundPosition: 'center',
+  backgroundSize: 'cover',
+  backgroundRepeat: 'no-repeat',
+};
 
 let confirmListener = null;
 
@@ -56,24 +65,24 @@ export const ConfirmDialogContainer = () => {
     switch (state.type) {
       case 'danger':
         return {
-          iconBg: 'rgba(239, 68, 68, 0.1)',
-          iconColor: '#ef4444',
+          iconBg: 'rgba(255, 255, 255, 0.2)',
+          iconColor: '#ffffff',
           btnBg: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
           btnShadow: '0 4px 14px rgba(239, 68, 68, 0.3)',
         };
       case 'warning':
         return {
-          iconBg: 'rgba(245, 158, 11, 0.1)',
-          iconColor: '#f59e0b',
+          iconBg: 'rgba(255, 255, 255, 0.2)',
+          iconColor: '#ffffff',
           btnBg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
           btnShadow: '0 4px 14px rgba(245, 158, 11, 0.3)',
         };
-      default: // info/primary
+      default:
         return {
-          iconBg: 'rgba(124, 58, 237, 0.1)',
-          iconColor: '#7c3aed',
-          btnBg: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
-          btnShadow: '0 4px 14px rgba(124, 58, 237, 0.3)',
+          iconBg: 'rgba(255, 255, 255, 0.2)',
+          iconColor: '#ffffff',
+          btnBg: 'linear-gradient(135deg, #0433ff 0%, #02188e 100%)',
+          btnShadow: '0 4px 14px rgba(2, 24, 142, 0.3)',
         };
     }
   };
@@ -85,8 +94,8 @@ export const ConfirmDialogContainer = () => {
       <div className="confirm-overlay" onClick={handleCancel} />
       <div className="confirm-wrapper">
         <div className="confirm-card">
-          <div className="confirm-header">
-            <div className="confirm-icon-box" style={{ backgroundColor: colors.iconBg, color: colors.iconColor }}>
+          <div className="confirm-header" style={MODAL_HEADER_STYLE}>
+            <div className="confirm-icon-box" style={{ backgroundColor: colors.iconBg, color: colors.iconColor, border: '1px solid rgba(255,255,255,0.25)' }}>
               {state.type === 'danger' && (
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

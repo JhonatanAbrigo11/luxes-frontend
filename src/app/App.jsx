@@ -14,6 +14,7 @@ import ClientesFeature from '../features/clientes/ui';
 import ProveedoresFeature from '../features/proveedores/ui';
 import ContactosFeature from '../features/contactos/ui';
 import UsuariosFeature from '../features/usuarios/ui';
+import LandingConfigFeature from '../features/landing-config/ui';
 import ComprasFeature from '../features/compras/ui';
 import VentasFeature from '../features/ventas/ui';
 import GastosFeature from '../features/gastos/ui';
@@ -96,6 +97,7 @@ function App() {
             <Route path="/proveedores/*" element={<ProveedoresFeature />} />
             <Route path="/contactos/*" element={<ContactosFeature />} />
             <Route path="/usuarios/*" element={<UsuariosFeature />} />
+            <Route path="/configuracion/landing/*" element={<LandingConfigFeature />} />
             <Route path="/compras/*" element={<ComprasFeature />} />
             <Route path="/ventas/*" element={<VentasFeature />} />
             <Route path="/gastos/*" element={<GastosFeature />} />
